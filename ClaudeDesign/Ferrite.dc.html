@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><style>
+:root{
+--f-text:-apple-system,"SF Pro Text",system-ui,sans-serif;
+--f-round:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif;
+--f-mono:ui-monospace,Menlo,monospace;
+--t-large:34px; --t-title:26px; --t-body:17px; --t-sub:15px; --t-foot:13px; --t-cap:11px;
+--l1:#fff; --l2:rgba(235,235,245,.72); --l3:rgba(235,235,245,.55);
+--tint:#0A84FF; --danger:#FF453A; --on:#34C759; --local:#2BD9C4;
+--paper:#0B0A0E; --fill:rgba(120,120,128,.3); --sep:rgba(255,255,255,.09);
+--glass:rgba(255,255,255,.1); --glass-line:rgba(255,255,255,.16);
+--card:rgba(255,255,255,.045); --card-line:rgba(255,255,255,.08);
+--art:repeating-linear-gradient(135deg,#17181B 0 5px,#1F2024 5px 10px);
+--ease-out:cubic-bezier(.16,1,.3,1);
+--icon-ground:#1C1A24;
+--r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:22px;
+}
+html{background:#0a0a0c}
+body{margin:0;background:#0a0a0c;font-family:var(--f-text);-webkit-font-smoothing:antialiased}
+a{color:var(--tint);text-decoration:none}a:hover{color:#4FA6FF}
+[data-ios-list]>div:last-child [data-sep],[data-ios-list]>div:last-child{border-bottom:none!important}
+[data-om-starter="ios-frame"] *{scrollbar-width:none;-ms-overflow-style:none}
+[data-om-starter="ios-frame"] *::-webkit-scrollbar{display:none;width:0;height:0}
+[data-tap]:focus-visible{outline:2px solid var(--tint);outline-offset:2px;border-radius:8px}
+@keyframes drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-4%,3%,0) scale(1.08)}100%{transform:translate3d(0,0,0) scale(1)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition-duration:.01ms!important}}
+</style></helmet>
+
+<div style="padding:44px 48px 64px;color:var(--l1)">
+  <div style="max-width:720px;margin-bottom:36px">
+    <div style="font:600 11px/1 var(--f-mono);letter-spacing:.14em;color:var(--l3);text-transform:uppercase;margin-bottom:14px">Ferrite · iOS music player</div>
+    <h1 style="font:600 34px/1.15 var(--f-text);letter-spacing:-.02em;margin:0 0 12px">One library, three sources</h1>
+    <p style="font:400 15px/1.6 var(--f-text);color:var(--l2);margin:0;text-wrap:pretty">Thirteen screens at 402×874, plus the icon. Row one covers the core flows; row two covers duplicate resolution, the queue, and the offline state; row three covers the three album types and the three onboarding steps. A single light source per screen sits behind the artwork and fades out, tinted by whatever is playing. Only floating elements use glass: the mini player, the tab bar, the transport button, the action sheet. Lists sit on the background with hairline separators. Every control ships default, hover, pressed, focus and disabled states. Artwork is a striped placeholder; icons are Lucide 0.454 standing in for SF Symbols.</p>
+  </div>
+
+  <div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap">
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">01</span><span style="font:500 13px var(--f-text);color:var(--l2)">Library</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.28;pointer-events:none;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 178px">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;padding:8px 22px 18px">
+              <h2 style="font:700 var(--t-large)/1.05 var(--f-round);letter-spacing:-.022em;margin:0;color:var(--l1)">Library</h2>
+              <div data-tap tabindex="0" style="width:32px;height:32px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;font:600 12px var(--f-text);color:var(--l1);cursor:pointer;transition:background .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.16)" style-active="transform:scale(.94)">RV</div>
+            </div>
+
+            <div style="margin:0 18px 22px;padding:2px;display:flex;border-radius:9px;background:var(--fill);backdrop-filter:blur(24px) saturate(160%)">
+              <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+                <div data-tap tabindex="0" onClick="{{ f.onClick }}" title="{{ f.title }}" style="flex:1;text-align:center;padding:7px 2px;border-radius:7px;font:590 var(--t-foot) var(--f-text);letter-spacing:-.01em;transition:all .18s var(--ease-out);{{ f.style }}" style-active="transform:scale(.97)">{{ f.label }}</div>
+              </sc-for>
+            </div>
+
+            <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);padding:0 22px 11px">Recently played</div>
+            <div style="display:flex;gap:13px;padding:0 22px 26px;overflow:auto">
+              <sc-for list="{{ recents }}" as="r" hint-placeholder-count="3">
+                <div data-tap tabindex="0" style="flex:none;width:132px;cursor:pointer;transition:transform .2s var(--ease-out)" style-active="transform:scale(.97)">
+                  <div style="width:132px;height:132px;border-radius:14px;border:1px solid var(--card-line);display:flex;align-items:center;justify-content:center;background:var(--art)">
+                    <span style="font:400 9px var(--f-mono);letter-spacing:.1em;color:var(--l3)">ARTWORK</span>
+                  </div>
+                  <div style="font:590 var(--t-sub)/1.2 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:11px 0 3px">{{ r.title }}</div>
+                  <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;gap:9px;padding:0 22px 28px;flex-wrap:wrap">
+              <sc-for list="{{ chips }}" as="c" hint-placeholder-count="4">
+                <div data-tap tabindex="0" style="padding:7px 13px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--card-line);font:400 var(--t-foot) var(--f-text);color:var(--l1);cursor:pointer;transition:background .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.09)" style-active="transform:scale(.96)">{{ c.label }}</div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 22px 6px">
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">{{ listHeading }}</div>
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3)">{{ listCount }}</div>
+            </div>
+
+            <sc-if value="{{ libraryEmpty }}" hint-placeholder-val="{{ false }}">
+              <div style="margin:12px 22px 0;padding:28px 20px;border-radius:var(--r-lg);border:1px dashed var(--card-line);text-align:center">
+                <div style="font:590 var(--t-body) var(--f-text);color:var(--l1)">{{ emptyTitle }}</div>
+                <div style="font:400 var(--t-foot)/1.4 var(--f-text);color:var(--l2);margin-top:6px">{{ emptyBody }}</div>
+              </div>
+            </sc-if>
+
+            <div data-ios-list>
+              <sc-for list="{{ visibleTracks }}" as="t" hint-placeholder-count="6">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:13px;padding:0 22px;cursor:pointer;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                  <div style="width:46px;height:46px;border-radius:9px;flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                      <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
+                    </div>
+                    <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3);flex:none">{{ t.dur }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="position:absolute;left:18px;right:18px;bottom:96px;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:20px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(34px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 22px 48px rgba(0,0,0,.55)">
+            <div style="width:40px;height:40px;border-radius:var(--r-sm);flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font:400 var(--t-sub)/1.2 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Midnight Ferry</div>
+              <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:2px">Rosalind Ver · Local</div>
+            </div>
+            <div data-tap tabindex="0" onClick="{{ toggle }}" style="width:36px;height:36px;border-radius:18px;flex:none;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.22)" style-active="transform:scale(.9)">
+              <div style="width:17px;height:17px;background:var(--l1);-webkit-mask:url({{ playIcon }}) center/contain no-repeat;mask:url({{ playIcon }}) center/contain no-repeat"></div>
+            </div>
+          </div>
+
+          <div style="position:absolute;left:0;right:0;bottom:0;height:88px;padding:12px 34px 0;display:flex;justify-content:space-between;background:linear-gradient(to top,rgba(10,9,14,.9),rgba(10,9,14,0));backdrop-filter:blur(20px);border-top:1px solid var(--card-line)">
+            <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3">
+              <div data-tap tabindex="0" style="display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;min-width:52px;transition:opacity .15s var(--ease-out)" style-active="opacity:.5">
+                <div style="width:22px;height:22px;-webkit-mask:url({{ tb.icon }}) center/contain no-repeat;mask:url({{ tb.icon }}) center/contain no-repeat;background:{{ tb.color }}"></div>
+                <span style="font:500 10.5px var(--f-text);color:{{ tb.color }}">{{ tb.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">02</span><span style="font:500 13px var(--f-text);color:var(--l2)">Now playing</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-8%;top:0%;width:116%;height:56%;border-radius:50%;filter:blur(86px);opacity:.42;pointer-events:none;animation:drift 28s ease-in-out infinite;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:60px 26px 40px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 2px 20px">
+              <div data-tap tabindex="0" style="width:32px;height:32px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.18)" style-active="transform:scale(.92)">
+                <div style="width:16px;height:16px;background:var(--l1);-webkit-mask:url({{ ic.down }}) center/contain no-repeat;mask:url({{ ic.down }}) center/contain no-repeat"></div>
+              </div>
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">Late Drives</div>
+              <div data-tap tabindex="0" style="width:32px;height:32px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.18)" style-active="transform:scale(.92)">
+                <div style="width:16px;height:16px;background:var(--l1);-webkit-mask:url({{ ic.more }}) center/contain no-repeat;mask:url({{ ic.more }}) center/contain no-repeat"></div>
+              </div>
+            </div>
+
+            <div style="position:relative;width:100%;aspect-ratio:1;border-radius:16px;overflow:hidden;border:1px solid var(--card-line);box-shadow:0 34px 70px rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;background:var(--art)">
+              <span style="font:400 var(--t-cap) var(--f-mono);letter-spacing:.18em;color:var(--l3)">ALBUM ARTWORK</span>
+              <div style="position:absolute;left:14px;bottom:14px;display:flex;align-items:center;gap:7px;padding:6px 11px 6px 8px;border-radius:var(--r-md);background:rgba(12,10,18,.45);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(22px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.2)">
+                <div style="width:7px;height:7px;border-radius:4px;background:var(--local)"></div>
+                <span style="font:590 var(--t-cap) var(--f-text);letter-spacing:.02em;color:var(--l1)">LOCAL · FLAC 24/96</span>
+              </div>
+            </div>
+
+            <div style="padding:24px 2px 0">
+              <div style="font:700 var(--t-title)/1.15 var(--f-text);letter-spacing:-.02em;color:var(--l1)">Midnight Ferry</div>
+              <div style="font:400 var(--t-body)/1.3 var(--f-text);color:var(--l2);margin-top:5px">Rosalind Ver — Harbour Tapes</div>
+            </div>
+
+            <div style="padding:22px 2px 0">
+              <div style="position:relative;height:24px;display:flex;align-items:center;cursor:pointer">
+                <div style="position:absolute;left:0;right:0;height:5px;border-radius:3px;background:rgba(255,255,255,.16)"></div>
+                <div style="position:absolute;left:0;height:5px;border-radius:3px;background:var(--l1);width:{{ pct }}"></div>
+                <div data-tap tabindex="0" style="position:absolute;width:13px;height:13px;border-radius:7px;background:var(--l1);box-shadow:0 2px 8px rgba(0,0,0,.5);margin-left:-6px;transition:transform .15s var(--ease-out);left:{{ pct }}" style-hover="transform:scale(1.25)" style-active="transform:scale(1.5)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:4px">
+                <span style="font:500 var(--t-foot) var(--f-mono);color:var(--l2)">{{ elapsed }}</span>
+                <span style="font:500 var(--t-foot) var(--f-mono);color:var(--l2)">{{ remain }}</span>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:center;gap:38px;padding:20px 0 0">
+              <div data-tap tabindex="0" style="width:30px;height:30px;cursor:pointer;background:var(--l1);transition:transform .15s var(--ease-out);-webkit-mask:url({{ ic.prev }}) center/contain no-repeat;mask:url({{ ic.prev }}) center/contain no-repeat" style-active="transform:scale(.85)"></div>
+              <div data-tap tabindex="0" onClick="{{ toggle }}" style="width:76px;height:76px;border-radius:38px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.24);backdrop-filter:blur(30px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 18px 44px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.2)" style-active="transform:scale(.93)">
+                <div style="width:30px;height:30px;background:var(--l1);-webkit-mask:url({{ playIcon }}) center/contain no-repeat;mask:url({{ playIcon }}) center/contain no-repeat"></div>
+              </div>
+              <div data-tap tabindex="0" style="width:30px;height:30px;cursor:pointer;background:var(--l1);transition:transform .15s var(--ease-out);-webkit-mask:url({{ ic.next }}) center/contain no-repeat;mask:url({{ ic.next }}) center/contain no-repeat" style-active="transform:scale(.85)"></div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:12px;padding:24px 2px 0">
+              <div style="width:16px;height:16px;flex:none;background:var(--l3);-webkit-mask:url({{ ic.vol0 }}) center/contain no-repeat;mask:url({{ ic.vol0 }}) center/contain no-repeat"></div>
+              <div style="position:relative;flex:1;height:20px;display:flex;align-items:center;cursor:pointer">
+                <div style="position:absolute;left:0;right:0;height:4px;border-radius:2px;background:rgba(255,255,255,.16)"></div>
+                <div style="position:absolute;left:0;height:4px;border-radius:2px;background:rgba(255,255,255,.75);width:62%"></div>
+                <div data-tap tabindex="0" style="position:absolute;left:62%;width:11px;height:11px;border-radius:6px;background:var(--l1);margin-left:-5px;box-shadow:0 2px 6px rgba(0,0,0,.45);transition:transform .15s var(--ease-out)" style-hover="transform:scale(1.25)" style-active="transform:scale(1.5)"></div>
+              </div>
+              <div style="width:16px;height:16px;flex:none;background:var(--l3);-webkit-mask:url({{ ic.vol2 }}) center/contain no-repeat;mask:url({{ ic.vol2 }}) center/contain no-repeat"></div>
+            </div>
+
+            <div style="flex:1"></div>
+
+            <div style="display:flex;justify-content:center;gap:58px">
+              <sc-for list="{{ actions }}" as="a" hint-placeholder-count="3">
+                <div data-tap tabindex="0" title="{{ a.label }}" style="width:22px;height:22px;cursor:pointer;background:var(--l2);transition:all .15s var(--ease-out);-webkit-mask:url({{ a.icon }}) center/contain no-repeat;mask:url({{ a.icon }}) center/contain no-repeat" style-hover="background:#fff" style-active="transform:scale(.85)"></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">03</span><span style="font:500 13px var(--f-text);color:var(--l2)">Sources & sync</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-18%;width:128%;height:44%;border-radius:50%;filter:blur(92px);opacity:.18;pointer-events:none;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 60px">
+            <h2 style="font:700 var(--t-large)/1.05 var(--f-round);letter-spacing:-.022em;margin:0;padding:8px 22px 20px;color:var(--l1)">Sources</h2>
+
+            <sc-for list="{{ services }}" as="s" hint-placeholder-count="2">
+              <div style="margin:0 18px 12px;padding:18px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--card-line)">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:40px;height:40px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid {{ s.ring }};background:{{ s.tint }}">
+                    <div style="width:9px;height:9px;border-radius:5px;background:{{ s.color }}"></div>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:590 var(--t-body) var(--f-text);color:var(--l1)">{{ s.name }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+                      <sc-if value="{{ s.syncing }}" hint-placeholder-val="{{ false }}">
+                        <div style="width:11px;height:11px;border-radius:6px;border:1.5px solid var(--l3);border-top-color:transparent;animation:spin .8s linear infinite"></div>
+                      </sc-if>
+                      <div style="font:400 var(--t-foot) var(--f-text);color:{{ s.statusColor }}">{{ s.status }}</div>
+                    </div>
+                  </div>
+                  <div data-tap tabindex="0" onClick="{{ s.onClick }}" style="padding:8px 16px;border-radius:15px;cursor:pointer;font:590 var(--t-sub) var(--f-text);transition:all .18s var(--ease-out);{{ s.btnStyle }}" style-active="transform:scale(.95)">{{ s.btnLabel }}</div>
+                </div>
+                <div style="height:1px;background:var(--sep);margin:16px 0 0"></div>
+                <div style="display:flex;justify-content:space-between;padding:13px 0 0">
+                  <span style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">Last synced</span>
+                  <span style="font:400 var(--t-foot) var(--f-text);color:var(--l1)">{{ s.synced }}</span>
+                </div>
+              </div>
+            </sc-for>
+
+            <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);padding:18px 26px 9px">Sync preferences</div>
+            <div data-ios-list style="margin:0 18px;padding:4px 18px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--card-line)">
+              <sc-for list="{{ prefs }}" as="p" hint-placeholder-count="3">
+                <div style="display:flex;align-items:center;gap:14px;min-height:44px;padding:14px 0;border-bottom:1px solid var(--sep);opacity:{{ p.opacity }}">
+                  <div style="flex:1">
+                    <div style="font:400 var(--t-body) var(--f-text);color:var(--l1)">{{ p.label }}</div>
+                    <div style="font:400 var(--t-foot)/1.35 var(--f-text);color:var(--l2);margin-top:3px">{{ p.hint }}</div>
+                  </div>
+                  <div data-tap tabindex="0" onClick="{{ p.onClick }}" style="width:51px;height:31px;border-radius:16px;flex:none;padding:2px;transition:background .2s var(--ease-out);display:flex;{{ p.trackStyle }}">
+                    <div style="width:27px;height:27px;border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35)"></div>
+                  </div>
+                </div>
+              </sc-for>
+              <div data-tap tabindex="0" style="display:flex;justify-content:space-between;align-items:center;min-height:44px;padding:14px 0;cursor:pointer" style-active="opacity:.55">
+                <span style="font:400 var(--t-body) var(--f-text);color:var(--l1)">Merge duplicates</span>
+                <span style="display:flex;align-items:center;gap:4px;font:400 var(--t-sub) var(--f-text);color:var(--l2)">By title + artist<span style="width:15px;height:15px;background:var(--l3);-webkit-mask:url({{ ic.right }}) center/contain no-repeat;mask:url({{ ic.right }}) center/contain no-repeat"></span></span>
+              </div>
+            </div>
+
+            <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);padding:24px 26px 9px">Storage</div>
+            <div data-ios-list style="margin:0 18px;padding:4px 18px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--card-line)">
+              <div style="display:flex;align-items:center;min-height:44px;padding:12px 0;border-bottom:1px solid var(--sep)">
+                <span style="flex:1;font:400 var(--t-body) var(--f-text);color:var(--l1)">Local files</span>
+                <span style="font:400 var(--t-body) var(--f-text);color:var(--l2)">1,284</span>
+              </div>
+              <div style="display:flex;align-items:center;min-height:44px;padding:12px 0;border-bottom:1px solid var(--sep)">
+                <span style="flex:1;font:400 var(--t-body) var(--f-text);color:var(--l1)">Space used</span>
+                <span style="font:400 var(--t-body) var(--f-text);color:var(--l2)">46.2 GB</span>
+              </div>
+              <div data-tap tabindex="0" style="display:flex;align-items:center;min-height:44px;padding:12px 0;cursor:pointer" style-active="opacity:.55">
+                <span style="flex:1;font:400 var(--t-body) var(--f-text);color:var(--tint)">Manage local files</span>
+                <span style="width:15px;height:15px;background:var(--l3);-webkit-mask:url({{ ic.right }}) center/contain no-repeat;mask:url({{ ic.right }}) center/contain no-repeat"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">04</span><span style="font:500 13px var(--f-text);color:var(--l2)">Unified search</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" keyboard="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:42%;border-radius:50%;filter:blur(90px);opacity:.2;pointer-events:none;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;overflow:auto;padding:58px 0 24px">
+            <div style="display:flex;align-items:center;gap:12px;margin:6px 18px 14px">
+              <div style="flex:1;display:flex;align-items:center;gap:7px;padding:9px 12px;border-radius:10px;background:var(--fill);backdrop-filter:blur(28px) saturate(180%)">
+                <div style="width:16px;height:16px;flex:none;background:var(--l2);-webkit-mask:url({{ ic.search }}) center/contain no-repeat;mask:url({{ ic.search }}) center/contain no-repeat"></div>
+                <div style="flex:1;font:400 var(--t-body)/1.2 var(--f-text);color:var(--l1)">{{ q }}<span style="display:inline-block;width:2px;height:19px;background:var(--tint);margin-left:2px;vertical-align:-4px"></span></div>
+                <div data-tap tabindex="0" style="width:16px;height:16px;flex:none;cursor:pointer;background:var(--l3);-webkit-mask:url({{ ic.clear }}) center/contain no-repeat;mask:url({{ ic.clear }}) center/contain no-repeat" style-hover="background:#fff"></div>
+              </div>
+              <div data-tap tabindex="0" style="font:400 var(--t-body) var(--f-text);color:var(--tint);cursor:pointer" style-active="opacity:.55">Cancel</div>
+            </div>
+
+            <div style="margin:0 18px 20px;padding:2px;display:flex;border-radius:9px;background:var(--fill);backdrop-filter:blur(24px) saturate(160%)">
+              <sc-for list="{{ scopes }}" as="s" hint-placeholder-count="4">
+                <div data-tap tabindex="0" onClick="{{ s.onClick }}" title="{{ s.title }}" style="flex:1;text-align:center;padding:6px 2px;border-radius:7px;font:590 var(--t-foot) var(--f-text);transition:all .18s var(--ease-out);{{ s.style }}" style-active="transform:scale(.97)">{{ s.label }}</div>
+              </sc-for>
+            </div>
+
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+              <div style="padding:0 0 20px">
+                <div style="display:flex;align-items:baseline;gap:8px;padding:0 22px 6px">
+                  <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);flex:1">{{ g.name }}</div>
+                  <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3)">{{ g.count }}</div>
+                </div>
+                <div data-ios-list>
+                  <sc-for list="{{ g.items }}" as="t" hint-placeholder-count="2">
+                    <div data-tap tabindex="0" style="display:flex;align-items:center;gap:12px;padding:0 22px;cursor:pointer;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                      <div style="width:42px;height:42px;border-radius:var(--r-sm);flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+                      <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:44px;padding:10px 0;border-bottom:1px solid var(--sep)">
+                        <div style="flex:1;min-width:0">
+                          <div style="font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                          <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.artist }}</div>
+                        </div>
+                        <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3);flex:none">{{ t.dur }}</div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+
+  <div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:56px">
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">05</span><span style="font:500 13px var(--f-text);color:var(--l2)">Duplicate resolution</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.14;pointer-events:none;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;overflow:hidden;padding:62px 0 0">
+            <h2 style="font:700 var(--t-large)/1.05 var(--f-round);letter-spacing:-.022em;margin:0;padding:8px 22px 20px;color:var(--l1)">Library</h2>
+            <div data-ios-list style="opacity:.5">
+              <sc-for list="{{ visibleTracks }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:13px;padding:0 22px">
+                  <div style="width:46px;height:46px;border-radius:9px;flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                      <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
+                    </div>
+                    <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3);flex:none">{{ t.dur }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(2px)"></div>
+
+          <div style="position:absolute;left:8px;right:8px;bottom:8px;border-radius:26px;background:rgba(30,29,36,.72);border:1px solid var(--glass-line);backdrop-filter:blur(40px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 -20px 60px rgba(0,0,0,.6);padding:10px 0 14px">
+            <div style="width:36px;height:5px;border-radius:3px;background:rgba(235,235,245,.3);margin:0 auto 16px"></div>
+            <div style="padding:0 22px 4px">
+              <div style="font:600 var(--t-body) var(--f-text);color:var(--l1)">Midnight Ferry</div>
+              <div style="font:400 var(--t-foot)/1.4 var(--f-text);color:var(--l2);margin-top:4px">Found in three places. Choose which copy plays.</div>
+            </div>
+            <div data-ios-list style="margin:14px 12px 0;padding:0 12px;border-radius:var(--r-lg);background:rgba(255,255,255,.05)">
+              <sc-for list="{{ copies }}" as="c" hint-placeholder-count="3">
+                <div data-tap tabindex="0" onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:44px;padding:13px 0;border-bottom:1px solid var(--sep);cursor:pointer" style-active="opacity:.6">
+                  <div style="width:9px;height:9px;border-radius:5px;flex:none;background:{{ c.color }}"></div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:400 var(--t-body) var(--f-text);color:var(--l1)">{{ c.label }}</div>
+                    <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);margin-top:2px">{{ c.meta }}</div>
+                  </div>
+                  <div style="width:18px;height:18px;flex:none;background:var(--tint);opacity:{{ c.tick }};-webkit-mask:url({{ ic.check }}) center/contain no-repeat;mask:url({{ ic.check }}) center/contain no-repeat"></div>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;min-height:44px;padding:13px 0">
+                <span style="flex:1;font:400 var(--t-body) var(--f-text);color:var(--l1)">Remember for all duplicates</span>
+                <div style="width:51px;height:31px;border-radius:16px;flex:none;padding:2px;display:flex;justify-content:flex-end;background:var(--on)">
+                  <div style="width:27px;height:27px;border-radius:14px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.35)"></div>
+                </div>
+              </div>
+            </div>
+            <div data-tap tabindex="0" style="margin:12px 12px 0;padding:14px 0;text-align:center;border-radius:var(--r-lg);background:rgba(255,255,255,.08);font:590 var(--t-body) var(--f-text);color:var(--l1);cursor:pointer" style-active="opacity:.6">Cancel</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">06</span><span style="font:500 13px var(--f-text);color:var(--l2)">Queue</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-8%;top:-4%;width:116%;height:44%;border-radius:50%;filter:blur(86px);opacity:.3;pointer-events:none;background:{{ amb }}"></div>
+
+          <div style="position:absolute;inset:0;overflow:auto;padding:60px 0 40px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 22px 22px">
+              <div data-tap tabindex="0" style="width:32px;height:32px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;cursor:pointer" style-active="transform:scale(.92)">
+                <div style="width:16px;height:16px;background:var(--l1);-webkit-mask:url({{ ic.down }}) center/contain no-repeat;mask:url({{ ic.down }}) center/contain no-repeat"></div>
+              </div>
+              <div style="font:600 var(--t-body) var(--f-text);color:var(--l1)">Up Next</div>
+              <div data-tap tabindex="0" style="width:32px;height:32px;border-radius:16px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;cursor:pointer" style-active="transform:scale(.92)">
+                <div style="width:16px;height:16px;background:var(--l1);-webkit-mask:url({{ ic.shuffle }}) center/contain no-repeat;mask:url({{ ic.shuffle }}) center/contain no-repeat"></div>
+              </div>
+            </div>
+
+            <div style="margin:0 18px 24px;display:flex;align-items:center;gap:13px;padding:12px;border-radius:var(--r-lg);background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(30px) saturate(180%);box-shadow:inset 0 1px 0 rgba(255,255,255,.18)">
+              <div style="width:52px;height:52px;border-radius:10px;flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font:400 var(--t-cap) var(--f-text);letter-spacing:.06em;color:var(--l2);text-transform:uppercase">Now playing</div>
+                <div style="font:590 var(--t-body)/1.25 var(--f-text);color:var(--l1);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Midnight Ferry</div>
+                <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:2px">Rosalind Ver · Local</div>
+              </div>
+              <div style="width:22px;height:22px;flex:none;background:var(--l1);-webkit-mask:url({{ playIcon }}) center/contain no-repeat;mask:url({{ playIcon }}) center/contain no-repeat"></div>
+            </div>
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 22px 6px">
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">Next from Late Drives</div>
+              <div data-tap tabindex="0" style="font:400 var(--t-foot) var(--f-text);color:var(--tint);cursor:pointer" style-active="opacity:.55">Clear</div>
+            </div>
+
+            <div data-ios-list>
+              <sc-for list="{{ queue }}" as="qi" hint-placeholder-count="5">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:13px;padding:0 22px;cursor:grab;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                  <div style="width:42px;height:42px;border-radius:var(--r-sm);flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ qi.title }}</div>
+                      <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ qi.sub }}</div>
+                    </div>
+                    <div style="font:400 var(--t-foot) var(--f-mono);color:var(--l3);flex:none">{{ qi.dur }}</div>
+                    <div style="width:18px;height:18px;flex:none;background:var(--l3);-webkit-mask:url({{ ic.grip }}) center/contain no-repeat;mask:url({{ ic.grip }}) center/contain no-repeat"></div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">07</span><span style="font:500 13px var(--f-text);color:var(--l2)">Offline</span></div>
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 100px">
+            <h2 style="font:700 var(--t-large)/1.05 var(--f-round);letter-spacing:-.022em;margin:0;padding:8px 22px 16px;color:var(--l1)">Library</h2>
+
+            <div style="margin:0 18px 18px;display:flex;align-items:center;gap:11px;padding:13px 15px;border-radius:var(--r-lg);background:rgba(255,255,255,.05);border:1px solid var(--card-line)">
+              <div style="width:18px;height:18px;flex:none;background:var(--l2);-webkit-mask:url({{ ic.wifiOff }}) center/contain no-repeat;mask:url({{ ic.wifiOff }}) center/contain no-repeat"></div>
+              <div style="flex:1;min-width:0">
+                <div style="font:590 var(--t-sub) var(--f-text);color:var(--l1)">No connection</div>
+                <div style="font:400 var(--t-foot)/1.35 var(--f-text);color:var(--l2);margin-top:2px">1,284 local tracks still play. Streaming resumes when you are back online.</div>
+              </div>
+            </div>
+
+            <div style="margin:0 18px 22px;padding:2px;display:flex;border-radius:9px;background:var(--fill)">
+              <sc-for list="{{ offSeg }}" as="o" hint-placeholder-count="4">
+                <div style="flex:1;text-align:center;padding:7px 2px;border-radius:7px;font:590 var(--t-foot) var(--f-text);letter-spacing:-.01em;{{ o.style }}">{{ o.label }}</div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:baseline;justify-content:space-between;padding:0 22px 6px">
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">Local</div>
+              <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3)">3 tracks</div>
+            </div>
+
+            <div data-ios-list>
+              <sc-for list="{{ offlineTracks }}" as="t" hint-placeholder-count="6">
+                <div style="display:flex;align-items:center;gap:13px;padding:0 22px;opacity:{{ t.opacity }}">
+                  <div style="width:46px;height:46px;border-radius:9px;flex:none;border:1px solid var(--card-line);background:var(--art)"></div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:12px;min-height:44px;padding:11px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0">
+                      <div style="font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</div>
+                      <div style="font:400 var(--t-foot)/1.2 var(--f-text);color:var(--l2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.sub }}</div>
+                    </div>
+                    <sc-if value="{{ t.showIcon }}" hint-placeholder-val="{{ false }}">
+                      <div style="width:17px;height:17px;flex:none;background:var(--l3);-webkit-mask:url({{ t.icon }}) center/contain no-repeat;mask:url({{ t.icon }}) center/contain no-repeat"></div>
+                    </sc-if>
+                    <div style="font:400 var(--t-foot) var(--f-mono);color:var(--l3);flex:none">{{ t.right }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="position:absolute;left:0;right:0;bottom:0;height:88px;padding:12px 34px 0;display:flex;justify-content:space-between;background:linear-gradient(to top,rgba(10,9,14,.9),rgba(10,9,14,0));backdrop-filter:blur(20px);border-top:1px solid var(--card-line)">
+            <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:5px;min-width:52px">
+                <div style="width:22px;height:22px;-webkit-mask:url({{ tb.icon }}) center/contain no-repeat;mask:url({{ tb.icon }}) center/contain no-repeat;background:{{ tb.color }}"></div>
+                <span style="font:500 10.5px var(--f-text);color:{{ tb.color }}">{{ tb.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;width:402px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">08</span><span style="font:500 13px var(--f-text);color:var(--l2)">Icon &amp; wordmark</span></div>
+
+      <div style="--acc:{{ accent }};padding:34px 30px;border-radius:26px;background:rgba(255,255,255,.03);border:1px solid var(--card-line);display:flex;flex-direction:column;gap:30px">
+
+        <div style="display:flex;align-items:flex-end;gap:20px">
+          <svg width="120" height="120" viewBox="0 0 100 100" role="img" aria-label="Ferrite app icon"><path d="M50 1.5C87 1.5 98.5 13 98.5 50S87 98.5 50 98.5 1.5 87 1.5 50 13 1.5 50 1.5Z" style="fill:var(--icon-ground)"></path><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" style="fill:var(--acc)"></path></g></svg>
+          <svg width="60" height="60" viewBox="0 0 100 100" role="img" aria-label="Ferrite app icon"><path d="M50 1.5C87 1.5 98.5 13 98.5 50S87 98.5 50 98.5 1.5 87 1.5 50 13 1.5 50 1.5Z" style="fill:var(--icon-ground)"></path><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" style="fill:var(--acc)"></path></g></svg>
+          <svg width="40" height="40" viewBox="0 0 100 100" role="img" aria-label="Ferrite app icon"><path d="M50 1.5C87 1.5 98.5 13 98.5 50S87 98.5 50 98.5 1.5 87 1.5 50 13 1.5 50 1.5Z" style="fill:var(--icon-ground)"></path><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" style="fill:var(--acc)"></path></g></svg>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:20px">
+          <span style="color:var(--l1);display:flex"><svg width="34" height="34" viewBox="0 0 100 100" role="img" aria-label="Ferrite mark"><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" fill="currentColor"></path></g></svg></span>
+          <span style="color:var(--l2);display:flex"><svg width="24" height="24" viewBox="0 0 100 100" role="img" aria-label="Ferrite mark"><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" fill="currentColor"></path></g></svg></span>
+          <span style="color:var(--l3);display:flex"><svg width="20" height="20" viewBox="0 0 100 100" role="img" aria-label="Ferrite mark"><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" fill="currentColor"></path></g></svg></span>
+          <span style="font:400 var(--t-foot)/1.4 var(--f-text);color:var(--l3)">Monochrome — tab bar, notifications</span>
+        </div>
+
+        <div style="height:1px;background:var(--sep)"></div>
+
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div style="font:600 42px/1 var(--f-round);letter-spacing:-.03em;color:var(--l1)">Ferrite</div>
+          <div style="display:flex;align-items:center;gap:11px;color:var(--l1)">
+            <svg width="28" height="28" viewBox="0 0 100 100" role="img" aria-label="Ferrite mark"><g transform="translate(9,9) scale(0.82)"><path d="M18 26H82a10 10 0 0 1 10 10v28a10 10 0 0 1-10 10H18A10 10 0 0 1 8 64V36a10 10 0 0 1 10-10ZM47 50a13 13 0 1 1-26 0 13 13 0 1 1 26 0ZM75 50a9 9 0 1 1-18 0 9 9 0 1 1 18 0Z" fill-rule="evenodd" fill="currentColor"></path></g></svg>
+            <div style="font:600 24px/1 var(--f-round);letter-spacing:-.025em">Ferrite</div>
+          </div>
+          <div style="font:400 var(--t-foot)/1.5 var(--f-text);color:var(--l2);text-wrap:pretty">A cassette shell with two unequal reel holes, punched out so the ground shows through rather than drawn as strokes — the holes stay open down to 40px. Solid #1C1A24 ground on a squircle path, not a rounded rectangle. The shell fill is bound to the ambient accent, so switching the Ambient tweak repaints the icon along with the screens.</div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <div style="display:flex;gap:44px;align-items:flex-start;flex-wrap:wrap;margin-top:56px">
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">09</span><span style="font:500 13px var(--f-text);color:var(--l2)">Album — local</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.16;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 40px">
+            <div style="padding:8px 22px 0;display:flex;flex-direction:column;align-items:center;text-align:center">
+              <div style="width:190px;height:190px;border-radius:14px;border:1px solid var(--card-line);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 50px rgba(0,0,0,.5);background:var(--art)">
+                <span style="font:400 9px var(--f-mono);letter-spacing:.1em;color:var(--l3)">ARTWORK</span>
+              </div>
+              <div style="font:700 23px/1.2 var(--f-text);letter-spacing:-.02em;color:var(--l1);margin-top:18px">Harbour Tapes</div>
+              <div style="font:400 var(--t-body)/1.3 var(--f-text);color:var(--l2);margin-top:4px">Rosalind Ver</div>
+              <div style="font:400 var(--t-foot)/1.3 var(--f-text);color:var(--l3);margin-top:6px">2019 · 12 tracks · FLAC 24/96 · 512 MB</div>
+            </div>
+            <div style="display:flex;gap:10px;padding:20px 22px 22px">
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.92);color:#111;font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:#fff" style-active="transform:scale(.97)">Play</div>
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid var(--card-line);color:var(--l1);font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)">Shuffle</div></div>
+            <div data-ios-list>
+              <sc-for list="{{ albumLocal }}" as="tr" hint-placeholder-count="6">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:14px;padding:0 22px;cursor:pointer;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                  <div style="width:18px;flex:none;text-align:right;font:400 var(--t-foot) var(--f-mono);color:var(--l3)">{{ tr.n }}</div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:13px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0;font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tr.title }}</div>
+                    <div style="font:400 var(--t-foot) var(--f-mono);color:var(--l3);flex:none">{{ tr.dur }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">10</span><span style="font:500 13px var(--f-text);color:var(--l2)">Album — streaming</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.16;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 40px">
+            <div style="padding:8px 22px 0;display:flex;flex-direction:column;align-items:center;text-align:center">
+              <div style="width:190px;height:190px;border-radius:14px;border:1px solid var(--card-line);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 50px rgba(0,0,0,.5);background:var(--art)">
+                <span style="font:400 9px var(--f-mono);letter-spacing:.1em;color:var(--l3)">ARTWORK</span>
+              </div>
+              <div style="font:700 23px/1.2 var(--f-text);letter-spacing:-.02em;color:var(--l1);margin-top:18px">Weather Systems</div>
+              <div style="font:400 var(--t-body)/1.3 var(--f-text);color:var(--l2);margin-top:4px">Junia</div>
+              <div style="font:400 var(--t-foot)/1.3 var(--f-text);color:var(--l3);margin-top:6px">Apple Music · Lossless · 9 tracks</div>
+            </div>
+            <div style="display:flex;gap:10px;padding:20px 22px 22px">
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.92);color:#111;font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:#fff" style-active="transform:scale(.97)">Play</div>
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid var(--card-line);color:var(--l1);font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)">Save</div></div>
+            <div style="margin:0 22px 18px;padding:11px 14px;border-radius:var(--r-md);background:rgba(255,255,255,.04);border:1px solid var(--card-line);font:400 var(--t-foot)/1.4 var(--f-text);color:var(--l2)">Streams from Apple Music. Nothing is stored on this iPhone.</div>
+            <div data-ios-list>
+              <sc-for list="{{ albumStream }}" as="tr" hint-placeholder-count="6">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:14px;padding:0 22px;cursor:pointer;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                  <div style="width:18px;flex:none;text-align:right;font:400 var(--t-foot) var(--f-mono);color:var(--l3)">{{ tr.n }}</div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:13px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0;font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ tr.title }}</div>
+                    <div style="font:400 var(--t-foot) var(--f-mono);color:var(--l3);flex:none">{{ tr.dur }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">11</span><span style="font:500 13px var(--f-text);color:var(--l2)">Album — mixed</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.2;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;overflow:auto;padding:62px 0 40px">
+            <div style="padding:8px 22px 0;display:flex;flex-direction:column;align-items:center;text-align:center">
+              <div style="width:190px;height:190px;border-radius:14px;border:1px solid var(--card-line);display:flex;align-items:center;justify-content:center;box-shadow:0 24px 50px rgba(0,0,0,.5);background:var(--art)">
+                <span style="font:400 9px var(--f-mono);letter-spacing:.1em;color:var(--l3)">ARTWORK</span>
+              </div>
+              <div style="font:700 23px/1.2 var(--f-text);letter-spacing:-.02em;color:var(--l1);margin-top:18px">Nightbus Sessions</div>
+              <div style="font:400 var(--t-body)/1.3 var(--f-text);color:var(--l2);margin-top:4px">Ferrograph</div>
+              <div style="font:400 var(--t-foot)/1.3 var(--f-text);color:var(--l3);margin-top:6px">2022 · 9 tracks</div>
+            </div>
+            <div style="display:flex;gap:10px;padding:20px 22px 22px">
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.92);color:#111;font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:#fff" style-active="transform:scale(.97)">Play</div>
+              <div data-tap tabindex="0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:7px;min-height:44px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid var(--card-line);color:var(--l1);font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:rgba(255,255,255,.14)" style-active="transform:scale(.97)">Download 4</div></div>
+            <div style="display:flex;gap:8px;padding:0 22px 16px">
+              <div style="flex:1;padding:11px 13px;border-radius:var(--r-md);background:rgba(255,255,255,.05);border:1px solid var(--card-line)">
+                <div style="font:590 var(--t-body) var(--f-text);color:var(--l1)">5</div>
+                <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);margin-top:2px">on this iPhone</div>
+              </div>
+              <div style="flex:1;padding:11px 13px;border-radius:var(--r-md);background:rgba(255,255,255,.03);border:1px solid var(--card-line)">
+                <div style="font:590 var(--t-body) var(--f-text);color:var(--l2)">4</div>
+                <div style="font:400 var(--t-foot) var(--f-text);color:var(--l3);margin-top:2px">stream only</div>
+              </div>
+            </div>
+            <div data-ios-list>
+              <sc-for list="{{ albumMixed }}" as="tr" hint-placeholder-count="6">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:14px;padding:0 22px;cursor:pointer;transition:background .15s var(--ease-out)" style-hover="background:rgba(255,255,255,.04)" style-active="background:rgba(255,255,255,.08)">
+                  <div style="width:18px;flex:none;text-align:right;font:400 var(--t-foot) var(--f-mono);color:var(--l3)">{{ tr.n }}</div>
+                  <div data-sep style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:13px 0;border-bottom:1px solid var(--sep)">
+                    <div style="flex:1;min-width:0;font:400 var(--t-body)/1.25 var(--f-text);color:var(--l1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:{{ tr.dim }}">{{ tr.title }}</div>
+                    <div style="flex:none;padding:2px 7px;border-radius:5px;border:1px solid var(--card-line);font:590 10px var(--f-mono);letter-spacing:.04em;color:var(--l2)">{{ tr.fmt }}</div>
+                    <div style="font:400 var(--t-foot) var(--f-mono);color:var(--l3);flex:none">{{ tr.dur }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">12</span><span style="font:500 13px var(--f-text);color:var(--l2)">Onboarding — scan</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.24;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:120px 34px 48px">
+            <div style="font:700 32px/1.15 var(--f-round);letter-spacing:-.025em;color:var(--l1)">Reading your files</div>
+            <div style="font:400 var(--t-body)/1.4 var(--f-text);color:var(--l2);margin-top:10px">Ferrite works before you connect anything.</div>
+            <div style="margin-top:44px">
+              <div style="display:flex;align-items:baseline;gap:8px">
+                <div style="font:700 56px/1 var(--f-mono);letter-spacing:-.03em;color:var(--l1)">1,284</div>
+                <div style="font:400 var(--t-body) var(--f-text);color:var(--l2)">songs</div>
+              </div>
+              <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.14);margin-top:22px;overflow:hidden">
+                <div style="width:74%;height:100%;border-radius:2px;background:var(--l1)"></div>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-top:9px">
+                <span style="font:400 var(--t-foot) var(--f-text);color:var(--l2)">Reading tags</span>
+                <span style="font:400 var(--t-foot) var(--f-mono);color:var(--l3)">74%</span>
+              </div>
+            </div>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:7px;justify-content:center;padding-bottom:22px">
+              <div style="width:7px;height:7px;border-radius:4px;background:var(--l1)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">13</span><span style="font:500 13px var(--f-text);color:var(--l2)">Onboarding — connect</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.2;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:120px 34px 48px">
+            <div style="font:700 32px/1.15 var(--f-round);letter-spacing:-.025em;color:var(--l1)">Add your accounts</div>
+            <div style="font:400 var(--t-body)/1.4 var(--f-text);color:var(--l2);margin-top:10px">Optional. You can do this later.</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
+              <sc-for list="{{ onbConnect }}" as="oc" hint-placeholder-count="2">
+                <div style="display:flex;align-items:center;gap:13px;padding:16px;border-radius:var(--r-lg);background:var(--card);border:1px solid var(--card-line)">
+                  <div style="width:40px;height:40px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid {{ oc.ring }};background:{{ oc.tint }}">
+                    <div style="width:9px;height:9px;border-radius:5px;background:{{ oc.color }}"></div>
+                  </div>
+                  <div style="flex:1;min-width:0">
+                    <div style="font:590 var(--t-body) var(--f-text);color:var(--l1)">{{ oc.name }}</div>
+                    <div style="font:400 var(--t-foot) var(--f-text);color:var(--l2);margin-top:2px">{{ oc.note }}</div>
+                  </div>
+                  <div data-tap tabindex="0" style="padding:8px 16px;border-radius:15px;background:var(--tint);color:#fff;font:590 var(--t-sub) var(--f-text);cursor:pointer;transition:transform .15s var(--ease-out)" style-active="transform:scale(.95)">Connect</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:1"></div>
+            <div data-tap tabindex="0" style="text-align:center;min-height:44px;display:flex;align-items:center;justify-content:center;font:400 var(--t-body) var(--f-text);color:var(--l2);cursor:pointer" style-active="opacity:.55">Skip</div>
+            <div style="display:flex;gap:7px;justify-content:center;padding-top:14px;padding-bottom:22px">
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:var(--l1)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:baseline;gap:9px"><span style="font:600 10.5px var(--f-mono);padding:3px 7px;background:rgba(255,255,255,.1);border-radius:5px">14</span><span style="font:500 13px var(--f-text);color:var(--l2)">Onboarding — duplicates</span></div>      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div style="position:relative;height:100%;overflow:hidden;background:var(--paper)">
+          <div style="position:absolute;left:-14%;top:-16%;width:128%;height:46%;border-radius:50%;filter:blur(88px);opacity:.2;pointer-events:none;background:{{ amb }}"></div>
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:120px 34px 48px">
+            <div style="font:700 32px/1.15 var(--f-round);letter-spacing:-.025em;color:var(--l1)">When a song is in two places</div>
+            <div style="font:400 var(--t-body)/1.4 var(--f-text);color:var(--l2);margin-top:10px">Change this any time in Sources.</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:34px">
+              <sc-for list="{{ onbRules }}" as="r" hint-placeholder-count="2">
+                <div data-tap tabindex="0" style="display:flex;align-items:center;gap:13px;padding:18px;border-radius:var(--r-lg);cursor:pointer;transition:all .18s var(--ease-out);{{ r.style }}" style-active="transform:scale(.98)">
+                  <div style="flex:1;min-width:0">
+                    <div style="font:590 var(--t-body) var(--f-text);color:var(--l1)">{{ r.title }}</div>
+                    <div style="font:400 var(--t-foot)/1.4 var(--f-text);color:var(--l2);margin-top:4px">{{ r.body }}</div>
+                  </div>
+                  <div style="width:20px;height:20px;flex:none;background:var(--tint);opacity:{{ r.tick }};-webkit-mask:url({{ ic.check }}) center/contain no-repeat;mask:url({{ ic.check }}) center/contain no-repeat"></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="flex:1"></div>
+            <div data-tap tabindex="0" style="min-height:50px;display:flex;align-items:center;justify-content:center;border-radius:14px;background:rgba(255,255,255,.92);color:#111;font:590 var(--t-body) var(--f-text);cursor:pointer;transition:all .18s var(--ease-out)" style-hover="background:#fff" style-active="transform:scale(.98)">Open Library</div>
+            <div style="display:flex;gap:7px;justify-content:center;padding-top:20px;padding-bottom:22px">
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:rgba(255,255,255,.22)"></div>
+              <div style="width:7px;height:7px;border-radius:4px;background:var(--l1)"></div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;ambient&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Dusk&quot;,&quot;Ocean&quot;,&quot;Ember&quot;],&quot;default&quot;:&quot;Dusk&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Ambient&quot;},&quot;query&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;mid&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Search&quot;}}">
+const V = '0.454.0';
+const ICON = n => `https://unpkg.com/lucide-static@${V}/icons/${n}.svg`;
+const IC = {
+  down: ICON('chevron-down'), more: ICON('ellipsis'), right: ICON('chevron-right'),
+  prev: ICON('skip-back'), next: ICON('skip-forward'),
+  search: ICON('search'), clear: ICON('circle-x'),
+  vol0: ICON('volume-1'), vol2: ICON('volume-2'),
+  check: ICON('check'), grip: ICON('grip-vertical'),
+  cloudOff: ICON('cloud-off'), wifiOff: ICON('wifi-off'), shuffle: ICON('shuffle'),
+};
+const SRC = {
+  Local: { color: '#2BD9C4', tint: 'rgba(43,217,196,.14)', ring: 'rgba(43,217,196,.35)' },
+  'Apple Music': { color: '#FF6B7E', tint: 'rgba(255,107,126,.14)', ring: 'rgba(255,107,126,.35)' },
+  Spotify: { color: '#4BD98A', tint: 'rgba(75,217,138,.14)', ring: 'rgba(75,217,138,.35)' },
+};
+const AMB = {
+  Dusk: 'radial-gradient(circle,#E4655C,rgba(228,101,92,0) 70%)',
+  Ocean: 'radial-gradient(circle,#3B7FE0,rgba(59,127,224,0) 70%)',
+  Ember: 'radial-gradient(circle,#FF8A3D,rgba(255,138,61,0) 70%)',
+};
+const ACC = { Dusk: '#E4655C', Ocean: '#3B7FE0', Ember: '#FF8A3D' };
+const TRACKS = [
+  { title: 'Midnight Ferry', artist: 'Rosalind Ver', src: 'Local', dur: '4:04' },
+  { title: 'Slow Static', artist: 'The Harbour Lights', src: 'Apple Music', dur: '3:41' },
+  { title: 'Pale Blue Hours', artist: 'Nima Okonkwo', src: 'Spotify', dur: '5:12' },
+  { title: 'Cassette Sunday', artist: 'Rosalind Ver', src: 'Local', dur: '2:58' },
+  { title: 'Weather Systems', artist: 'Junia', src: 'Apple Music', dur: '6:20' },
+  { title: 'Nightbus', artist: 'Ferrograph', src: 'Spotify', dur: '3:26' },
+];
+const SEARCH = {
+  Local: [
+    { title: 'Midnight Ferry', artist: 'Rosalind Ver · FLAC 24/96', dur: '4:04' },
+    { title: 'Midtown Loop', artist: 'Unknown Artist · MP3 320', dur: '3:12' },
+  ],
+  'Apple Music': [
+    { title: 'Midsummer Static', artist: 'The Harbour Lights', dur: '3:41' },
+    { title: 'Midnight Ferry (Live)', artist: 'Rosalind Ver', dur: '4:38' },
+  ],
+  Spotify: [
+    { title: 'Midway', artist: 'Ferrograph', dur: '3:26' },
+    { title: 'Midnight Ferry — Slowed', artist: 'lo-fi archive', dur: '5:02' },
+  ],
+};
+
+class Component extends DCLogic {
+  state = {
+    filter: 'All', playing: true, pos: 0.38, scope: 'All',
+    apple: true, spotify: true, syncing: null, copy: 0,
+    prefs: { wifi: true, hi: false, offline: true },
+  };
+
+  componentDidMount() {
+    if (!document.getElementById('ferrite-spin')) {
+      const s = document.createElement('style');
+      s.id = 'ferrite-spin';
+      s.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(s);
+    }
+    this.t = setInterval(() => {
+      if (this.state.playing) this.setState(s => ({ pos: (s.pos + 0.004) % 1 }));
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.t); clearTimeout(this.sync); }
+
+  fmt(sec) {
+    const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  linked(name) {
+    return name === 'Local' || (name === 'Apple Music' ? this.state.apple : this.state.spotify);
+  }
+
+  connect(key) {
+    const on = this.state[key];
+    if (on) return this.setState({ [key]: false });
+    this.setState({ syncing: key });
+    clearTimeout(this.sync);
+    this.sync = setTimeout(() => this.setState({ [key]: true, syncing: null }), 1600);
+  }
+
+  seg(sel, disabled) {
+    if (disabled) return 'background:transparent;color:rgba(235,235,245,.28);cursor:not-allowed';
+    return sel
+      ? 'background:rgba(235,235,245,.26);color:#fff;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.2)'
+      : 'background:transparent;color:rgba(235,235,245,.72);cursor:pointer';
+  }
+
+  renderVals() {
+    const st = this.state;
+    const dur = 244;
+    const names = ['All', 'Local', 'Apple Music', 'Spotify'];
+
+    const mkSeg = (cur, set) => names.map(id => {
+      const off = !this.linked(id);
+      return {
+        id, label: id === 'Apple Music' ? 'Apple' : id,
+        title: off ? id + ' is not connected' : id,
+        style: this.seg(cur === id, off),
+        onClick: off ? undefined : () => set(id),
+      };
+    });
+
+    const active = st.filter === 'All' || this.linked(st.filter) ? st.filter : 'All';
+    const visible = active === 'All'
+      ? TRACKS.filter(t => this.linked(t.src))
+      : TRACKS.filter(t => t.src === active);
+
+    const scope = st.scope === 'All' || this.linked(st.scope) ? st.scope : 'All';
+    const groupNames = (scope === 'All' ? ['Local', 'Apple Music', 'Spotify'] : [scope])
+      .filter(n => this.linked(n));
+
+    const svc = (key, name, count) => {
+      const on = st[key], busy = st.syncing === key;
+      return {
+        name, color: SRC[name].color, tint: SRC[name].tint, ring: SRC[name].ring,
+        syncing: busy,
+        status: busy ? 'Importing library…' : on ? count : 'Not connected',
+        statusColor: on && !busy ? 'rgba(235,235,245,.72)' : 'rgba(235,235,245,.55)',
+        synced: on ? 'Today, 9:12 AM' : '—',
+        btnLabel: busy ? 'Cancel' : on ? 'Unlink' : 'Connect',
+        btnStyle: busy
+          ? 'background:rgba(120,120,128,.3);color:rgba(235,235,245,.72)'
+          : on
+            ? 'background:rgba(120,120,128,.3);color:#FF453A'
+            : 'background:#0A84FF;color:#fff',
+        onClick: () => busy
+          ? (clearTimeout(this.sync), this.setState({ syncing: null }))
+          : this.connect(key),
+      };
+    };
+
+    const anyStream = st.apple || st.spotify;
+    const pref = (key, label, hint, needsStream) => {
+      const off = needsStream && !anyStream;
+      return {
+        key, label, hint, opacity: off ? '.4' : '1',
+        trackStyle: st.prefs[key] && !off
+          ? 'background:#34C759;justify-content:flex-end;cursor:pointer'
+          : 'background:rgba(120,120,128,.32);justify-content:flex-start;' + (off ? 'cursor:not-allowed' : 'cursor:pointer'),
+        onClick: off ? undefined : () => this.setState(s => ({ prefs: { ...s.prefs, [key]: !s.prefs[key] } })),
+      };
+    };
+
+    return {
+      amb: AMB[this.props.ambient ?? 'Dusk'] || AMB.Dusk,
+      accent: ACC[this.props.ambient ?? 'Dusk'] || ACC.Dusk,
+      ic: IC,
+      filters: mkSeg(active, id => this.setState({ filter: id })),
+      scopes: mkSeg(scope, id => this.setState({ scope: id })),
+      visibleTracks: visible.map(t => ({ ...t, sub: t.artist + ' · ' + t.src })),
+      listHeading: active === 'All' ? 'All tracks' : active,
+      listCount: visible.length + (visible.length === 1 ? ' track' : ' tracks'),
+      libraryEmpty: visible.length === 0,
+      emptyTitle: active === 'All' ? 'Nothing to play yet' : 'No ' + active + ' tracks',
+      emptyBody: 'Connect a service in Sources, or add files over Wi-Fi from your Mac.',
+      recents: [
+        { title: 'Harbour Tapes', sub: 'Rosalind Ver · Local' },
+        { title: 'Late Drives', sub: 'Playlist · Spotify' },
+        { title: 'Weather Systems', sub: 'Junia · Apple Music' },
+      ],
+      chips: [{ label: 'Downloaded' }, { label: 'Weekly Mix' }, { label: 'Saved albums' }, { label: 'Recently added' }],
+      tabs: [
+        { label: 'Library', icon: ICON('library'), color: '#0A84FF' },
+        { label: 'Search', icon: ICON('search'), color: 'rgba(235,235,245,.72)' },
+        { label: 'Sources', icon: ICON('plug'), color: 'rgba(235,235,245,.72)' },
+      ],
+      actions: [
+        { label: 'Lyrics', icon: ICON('mic') },
+        { label: 'AirPlay', icon: ICON('airplay') },
+        { label: 'Queue', icon: ICON('list-music') },
+      ],
+      services: [
+        svc('apple', 'Apple Music', '812 songs · 24 playlists'),
+        svc('spotify', 'Spotify', '1,140 songs · 31 playlists'),
+      ],
+      prefs: [
+        pref('wifi', 'Sync over Wi-Fi only', 'Pause streaming-library sync on cellular', true),
+        pref('hi', 'Prefer local file when duplicated', 'Play your own copy instead of the stream', true),
+        pref('offline', 'Cache artwork & metadata', 'Keeps the library browsable offline', false),
+      ],
+      groups: groupNames.map(n => ({
+        name: n, count: SEARCH[n].length + ' results', items: SEARCH[n],
+      })),
+      playIcon: ICON(st.playing ? 'pause' : 'play'),
+      toggle: () => this.setState(s => ({ playing: !s.playing })),
+      pct: (st.pos * 100).toFixed(1) + '%',
+      elapsed: this.fmt(st.pos * dur),
+      remain: '-' + this.fmt(dur - st.pos * dur),
+      copies: [
+        { label: 'On this iPhone', meta: 'FLAC 24/96 · 48.2 MB', color: SRC.Local.color, chosen: st.copy === 0, onClick: () => this.setState({ copy: 0 }) },
+        { label: 'Apple Music', meta: 'Lossless 24/48 · streams', color: SRC['Apple Music'].color, chosen: st.copy === 1, onClick: () => this.setState({ copy: 1 }) },
+        { label: 'Spotify', meta: 'OGG 320 kbps · streams', color: SRC.Spotify.color, chosen: st.copy === 2, onClick: () => this.setState({ copy: 2 }) },
+      ].map(c => ({ ...c, check: c.chosen ? IC.check : '', tick: c.chosen ? '1' : '0' })),
+      queue: [
+        { title: 'Slow Static', sub: 'The Harbour Lights · Apple Music', dur: '3:41' },
+        { title: 'Nightbus', sub: 'Ferrograph · Spotify', dur: '3:26' },
+        { title: 'Cassette Sunday', sub: 'Rosalind Ver · Local', dur: '2:58' },
+        { title: 'Pale Blue Hours', sub: 'Nima Okonkwo · Spotify', dur: '5:12' },
+        { title: 'Weather Systems', sub: 'Junia · Apple Music', dur: '6:20' },
+      ],
+      offlineTracks: TRACKS.map(t => {
+        const local = t.src === 'Local';
+        return {
+          title: t.title, sub: t.artist + ' · ' + t.src, dur: t.dur,
+          opacity: local ? '1' : '.38',
+          right: local ? t.dur : '',
+          icon: local ? '' : IC.cloudOff,
+          showIcon: !local,
+        };
+      }),
+      offSeg: names.map(id => ({
+        label: id === 'Apple Music' ? 'Apple' : id,
+        style: this.seg(id === 'Local', id !== 'Local' && id !== 'All'),
+      })),
+      albumLocal: [
+        { n: '1', title: 'Midnight Ferry', dur: '4:04' },
+        { n: '2', title: 'Cassette Sunday', dur: '2:58' },
+        { n: '3', title: 'Low Tide', dur: '3:22' },
+        { n: '4', title: 'Harbour Lights', dur: '5:01' },
+        { n: '5', title: 'Saltwater', dur: '3:44' },
+        { n: '6', title: 'Ferry Home', dur: '6:12' },
+      ],
+      albumStream: [
+        { n: '1', title: 'Weather Systems', dur: '6:20' },
+        { n: '2', title: 'Barometer', dur: '3:58' },
+        { n: '3', title: 'Cold Front', dur: '4:31' },
+        { n: '4', title: 'Anticyclone', dur: '5:09' },
+        { n: '5', title: 'Still Air', dur: '2:47' },
+        { n: '6', title: 'After Rain', dur: '7:03' },
+      ],
+      albumMixed: [
+        { n: '1', title: 'Nightbus', fmt: 'FLAC', dim: '1', dur: '3:26' },
+        { n: '2', title: 'Depot', fmt: 'FLAC', dim: '1', dur: '4:12' },
+        { n: '3', title: 'Last Service', fmt: 'Lossless', dim: '.55', dur: '3:50' },
+        { n: '4', title: 'Terminus', fmt: 'FLAC', dim: '1', dur: '5:33' },
+        { n: '5', title: 'Night Shift', fmt: '320', dim: '.55', dur: '4:07' },
+        { n: '6', title: 'First Light', fmt: 'Lossless', dim: '.55', dur: '6:44' },
+      ],
+      onbConnect: [
+        { name: 'Apple Music', color: SRC['Apple Music'].color, tint: SRC['Apple Music'].tint, ring: SRC['Apple Music'].ring, note: 'System permission' },
+        { name: 'Spotify', color: SRC.Spotify.color, tint: SRC.Spotify.tint, ring: SRC.Spotify.ring, note: 'Opens Spotify to sign in' },
+      ],
+      onbRules: [
+        { title: 'Play my file', body: 'Streams only when no file exists.', sel: true },
+        { title: 'Play the stream', body: 'Files stay available offline.', sel: false },
+      ].map(r => ({
+        ...r,
+        style: r.sel
+          ? 'background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.28)'
+          : 'background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)',
+        tick: r.sel ? '1' : '0',
+      })),
+      q: this.props.query ?? 'mid',
+    };
+  }
+}
+
+</script>
+</body>
+</html>
