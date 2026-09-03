@@ -1,0 +1,10 @@
+.page { padding: 62px 0 60px; }
+.title { font: 700 var(--t-large)/1.05 var(--f-round); margin: 0; padding: 8px 22px 20px; color: var(--l1); }
+.card { margin: 0 18px 12px; padding: 18px; border-radius: var(--r-lg); background: var(--card); border: 1px solid var(--card-line); }
+.row { display: flex; align-items: center; gap: 12px; }
+.dot { width: 40px; height: 40px; border-radius: 11px; flex: none; display: flex; align-items: center; justify-content: center; }
+.name { font: 590 var(--t-body) var(--f-text); color: var(--l1); }
+.status { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 3px; }
+.btn { padding: 8px 16px; border-radius: 15px; font: 590 var(--t-sub) var(--f-text); }
+.spinner { width: 11px; height: 11px; border-radius: 6px; border: 1.5px solid var(--l3); border-top-color: transparent; animation: spin .8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
