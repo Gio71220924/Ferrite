@@ -1,0 +1,12 @@
+.page { padding: 62px 0 40px; }
+.head { padding: 8px 22px 0; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.art { width: 190px; height: 190px; border-radius: 14px; border: 1px solid var(--card-line); background: var(--art); }
+.title { font: 700 23px/1.2 var(--f-text); letter-spacing: -.02em; color: var(--l1); margin-top: 18px; }
+.artist { font: 400 var(--t-body)/1.3 var(--f-text); color: var(--l2); margin-top: 4px; }
+.meta { font: 400 var(--t-foot)/1.3 var(--f-text); color: var(--l3); margin-top: 6px; }
+.actions { display: flex; gap: 10px; padding: 20px 22px 22px; }
+.primary { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; border-radius: 13px; background: rgba(255,255,255,.92); color: #111; font: 590 var(--t-body) var(--f-text); }
+.secondary { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; border-radius: 13px; background: rgba(255,255,255,.08); border: 1px solid var(--card-line); color: var(--l1); font: 590 var(--t-body) var(--f-text); }
+.disclosure { margin: 0 22px 18px; padding: 11px 14px; border-radius: var(--r-md); background: rgba(255,255,255,.04); border: 1px solid var(--card-line); font: 400 var(--t-foot)/1.4 var(--f-text); color: var(--l2); }
+.trackRow { display: flex; align-items: center; gap: 14px; padding: 13px 22px; border-bottom: 1px solid var(--sep); }
+.n { width: 18px; flex: none; text-align: right; font: 400 var(--t-foot) var(--f-mono); color: var(--l3); }
