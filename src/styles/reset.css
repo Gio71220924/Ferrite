@@ -1,0 +1,12 @@
+html { background: #0a0a0c; }
+body {
+  margin: 0;
+  background: #0a0a0c;
+  font-family: var(--f-text);
+  -webkit-font-smoothing: antialiased;
+  color: var(--l1);
+}
+* { box-sizing: border-box; }
+button { font: inherit; color: inherit; background: none; border: none; padding: 0; }
+[data-tap] { cursor: pointer; }
+[data-tap]:focus-visible { outline: 2px solid var(--tint); outline-offset: 2px; border-radius: 8px; }
