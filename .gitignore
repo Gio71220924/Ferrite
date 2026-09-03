@@ -1,3 +1,5 @@
 .claude/
 ClaudeDesign/
 docs/superpowers/
+node_modules/
+dist/
