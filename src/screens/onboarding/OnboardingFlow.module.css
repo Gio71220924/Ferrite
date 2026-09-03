@@ -1,0 +1,9 @@
+.step { display: flex; flex-direction: column; padding: 120px 34px 48px; min-height: 100vh; }
+.heading { font: 700 32px/1.15 var(--f-round); letter-spacing: -.025em; color: var(--l1); }
+.sub { font: 400 var(--t-body)/1.4 var(--f-text); color: var(--l2); margin-top: 10px; }
+.spacer { flex: 1; }
+.dots { display: flex; gap: 7px; justify-content: center; padding-bottom: 22px; }
+.dot { width: 7px; height: 7px; border-radius: 4px; background: rgba(255,255,255,.22); }
+.dotActive { background: var(--l1); }
+.primaryBtn { min-height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: rgba(255,255,255,.92); color: #111; font: 590 var(--t-body) var(--f-text); }
+.skip { text-align: center; min-height: 44px; display: flex; align-items: center; justify-content: center; font: 400 var(--t-body) var(--f-text); color: var(--l2); }
