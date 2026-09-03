@@ -1,0 +1,15 @@
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); backdrop-filter: blur(2px); z-index: 10; }
+.sheet {
+  position: fixed; left: 8px; right: 8px; bottom: 8px; z-index: 11;
+  border-radius: 26px; background: rgba(30,29,36,.92); border: 1px solid var(--glass-line);
+  padding: 10px 0 14px;
+}
+.grabber { width: 36px; height: 5px; border-radius: 3px; background: rgba(235,235,245,.3); margin: 0 auto 16px; }
+.header { padding: 0 22px 4px; }
+.title { font: 600 var(--t-body) var(--f-text); color: var(--l1); }
+.body { font: 400 var(--t-foot)/1.4 var(--f-text); color: var(--l2); margin-top: 4px; }
+.list { margin: 14px 12px 0; padding: 0 12px; border-radius: var(--r-lg); background: rgba(255,255,255,.05); }
+.copy { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 13px 0; border-bottom: 1px solid var(--sep); width: 100%; text-align: left; }
+.copyLabel { font: 400 var(--t-body) var(--f-text); color: var(--l1); }
+.copyMeta { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 2px; }
+.cancel { margin: 12px 12px 0; padding: 14px 0; text-align: center; border-radius: var(--r-lg); background: rgba(255,255,255,.08); font: 590 var(--t-body) var(--f-text); color: var(--l1); width: calc(100% - 24px); }
