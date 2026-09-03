@@ -1,0 +1,10 @@
+.page { padding: 58px 0 24px; }
+.searchBar { display: flex; align-items: center; gap: 12px; margin: 6px 18px 14px; }
+.input { flex: 1; display: flex; align-items: center; gap: 7px; padding: 9px 12px; border-radius: 10px; background: var(--fill); }
+.field { flex: 1; border: none; background: none; color: var(--l1); font: 400 var(--t-body) var(--f-text); outline: none; }
+.scopes { margin: 0 18px 20px; padding: 2px; display: flex; border-radius: 9px; background: var(--fill); }
+.scopeBtn { flex: 1; text-align: center; padding: 6px 2px; border-radius: 7px; font: 590 var(--t-foot) var(--f-text); color: var(--l2); }
+.scopeBtnActive { background: rgba(235,235,245,.26); color: #fff; }
+.groupHeader { display: flex; align-items: baseline; gap: 8px; padding: 0 22px 6px; }
+.groupName { font: 400 var(--t-foot) var(--f-text); color: var(--l2); flex: 1; }
+.groupCount { font: 400 var(--t-foot) var(--f-text); color: var(--l3); }
