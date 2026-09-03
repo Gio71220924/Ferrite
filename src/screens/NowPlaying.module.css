@@ -1,0 +1,9 @@
+.page { display: flex; flex-direction: column; padding: 60px 26px 40px; min-height: 100vh; }
+.art { position: relative; width: 100%; max-width: 360px; aspect-ratio: 1; border-radius: 16px; overflow: hidden; border: 1px solid var(--card-line); background: var(--art); align-self: center; }
+.title { font: 700 var(--t-title)/1.15 var(--f-text); letter-spacing: -.02em; color: var(--l1); margin-top: 24px; }
+.artist { font: 400 var(--t-body)/1.3 var(--f-text); color: var(--l2); margin-top: 5px; }
+.scrubTrack { position: relative; height: 5px; border-radius: 3px; background: rgba(255,255,255,.16); margin-top: 22px; }
+.scrubFill { position: absolute; left: 0; height: 5px; border-radius: 3px; background: var(--l1); }
+.times { display: flex; justify-content: space-between; margin-top: 4px; font: 500 var(--t-foot) var(--f-mono); color: var(--l2); }
+.transport { display: flex; align-items: center; justify-content: center; gap: 38px; padding: 20px 0 0; }
+.playBtn { width: 76px; height: 76px; border-radius: 38px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.24); display: flex; align-items: center; justify-content: center; }
