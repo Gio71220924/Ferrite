@@ -1,0 +1,12 @@
+.page { padding: 62px 0 178px; }
+.header { display: flex; align-items: flex-end; justify-content: space-between; padding: 8px 22px 18px; }
+.title { font: 700 var(--t-large)/1.05 var(--f-round); letter-spacing: -.022em; margin: 0; color: var(--l1); }
+.segment { margin: 0 18px 22px; padding: 2px; display: flex; border-radius: 9px; background: var(--fill); }
+.segBtn { flex: 1; text-align: center; padding: 7px 2px; border-radius: 7px; font: 590 var(--t-foot) var(--f-text); color: var(--l2); }
+.segBtnActive { background: rgba(235,235,245,.26); color: #fff; }
+.segBtnDisabled { color: rgba(235,235,245,.28); cursor: not-allowed; }
+.sectionLabel { font: 400 var(--t-foot) var(--f-text); color: var(--l2); padding: 0 22px 6px; display: flex; justify-content: space-between; }
+.empty { margin: 12px 22px 0; padding: 28px 20px; border-radius: var(--r-lg); border: 1px dashed var(--card-line); text-align: center; }
+.emptyTitle { font: 590 var(--t-body) var(--f-text); color: var(--l1); }
+.emptyBody { font: 400 var(--t-foot)/1.4 var(--f-text); color: var(--l2); margin-top: 6px; }
+.offlineBanner { margin: 0 18px 18px; display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-radius: var(--r-lg); background: rgba(255,255,255,.05); border: 1px solid var(--card-line); }
