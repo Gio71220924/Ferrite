@@ -1,0 +1,18 @@
+.row {
+  display: flex; align-items: center; gap: 13px; padding: 0 22px;
+  cursor: pointer; background: transparent; width: 100%; text-align: left;
+  transition: background .15s var(--ease-out);
+}
+.row:hover { background: rgba(255,255,255,.04); }
+.row:active { background: rgba(255,255,255,.08); }
+.art {
+  width: 46px; height: 46px; border-radius: 9px; flex: none;
+  border: 1px solid var(--card-line); background: var(--art);
+}
+.body {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px;
+  min-height: 44px; padding: 11px 0; border-bottom: 1px solid var(--sep);
+}
+.title { font: 400 var(--t-body) var(--f-text); color: var(--l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dur { font: 400 var(--t-foot) var(--f-mono); color: var(--l3); flex: none; }

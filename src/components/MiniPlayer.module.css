@@ -1,0 +1,15 @@
+.bar {
+  position: fixed; left: 18px; right: 18px; bottom: 96px; z-index: 5;
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 20px; background: var(--glass); border: 1px solid var(--glass-line);
+  backdrop-filter: blur(34px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 22px 48px rgba(0,0,0,.55);
+}
+.art { width: 40px; height: 40px; border-radius: var(--r-sm); flex: none; border: 1px solid var(--card-line); background: var(--art); }
+.info { flex: 1; min-width: 0; }
+.title { font: 400 var(--t-sub) var(--f-text); color: var(--l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sub { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 2px; }
+.toggle {
+  width: 36px; height: 36px; border-radius: 18px; flex: none;
+  background: rgba(255,255,255,.14); display: flex; align-items: center; justify-content: center;
+}
