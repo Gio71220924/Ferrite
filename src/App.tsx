@@ -30,13 +30,17 @@ function useTrackLookup() {
   return useMemo(() => {
     const all: Track[] = [
       ...library.localTracks,
-      ...(sources.youtube ? getYoutubeTracks() : []),
+      ...(sources.youtube ? getYoutubeTracks().map(t => ({
+        ...t,
+        fileUrl: sources.youtubeDownloaded.get(t.id),
+        downloaded: sources.youtubeDownloaded.has(t.id),
+      })) : []),
       ...(sources.spotify ? getSpotifyTracks() : []),
       ...Object.values(albumTracks),
     ];
     const byId = new Map(all.map(t => [t.id, t]));
     return (id: string) => byId.get(id);
-  }, [library.localTracks, sources.youtube, sources.spotify]);
+  }, [library.localTracks, sources.youtube, sources.spotify, sources.youtubeDownloaded]);
 }
 
 function LibraryRoute() {

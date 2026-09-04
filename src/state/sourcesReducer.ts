@@ -12,6 +12,7 @@ export interface SourcesState {
    * is on. null means no choice has been learned yet, so a new duplicate
    * still opens the sheet even with "remember" enabled. */
   duplicatePreference: Source | null;
+  youtubeDownloaded: Map<string, string>;
 }
 
 export const initialSourcesState: SourcesState = {
@@ -21,6 +22,7 @@ export const initialSourcesState: SourcesState = {
   prefs: { wifiOnly: true, preferLocal: false, cacheOffline: true },
   rememberDuplicates: false,
   duplicatePreference: null,
+  youtubeDownloaded: new Map(),
 };
 
 export type SourcesAction =
@@ -29,7 +31,10 @@ export type SourcesAction =
   | { type: 'DISCONNECT'; key: StreamingKey }
   | { type: 'SET_PREF'; key: keyof SourcesState['prefs'] }
   | { type: 'SET_DUPLICATE_PREFERENCE'; source: Source }
-  | { type: 'SET_REMEMBER_DUPLICATES'; value: boolean };
+  | { type: 'SET_REMEMBER_DUPLICATES'; value: boolean }
+  | { type: 'YOUTUBE_TRACK_DOWNLOADED'; videoId: string; fileUrl: string }
+  | { type: 'YOUTUBE_TRACK_REMOVED'; videoId: string }
+  | { type: 'YOUTUBE_DOWNLOADS_LOADED'; downloads: Map<string, string> };
 
 export function sourcesReducer(state: SourcesState, action: SourcesAction): SourcesState {
   switch (action.type) {
@@ -46,6 +51,18 @@ export function sourcesReducer(state: SourcesState, action: SourcesAction): Sour
       return { ...state, duplicatePreference: action.source };
     case 'SET_REMEMBER_DUPLICATES':
       return { ...state, rememberDuplicates: action.value };
+    case 'YOUTUBE_TRACK_DOWNLOADED': {
+      const next = new Map(state.youtubeDownloaded);
+      next.set(action.videoId, action.fileUrl);
+      return { ...state, youtubeDownloaded: next };
+    }
+    case 'YOUTUBE_TRACK_REMOVED': {
+      const next = new Map(state.youtubeDownloaded);
+      next.delete(action.videoId);
+      return { ...state, youtubeDownloaded: next };
+    }
+    case 'YOUTUBE_DOWNLOADS_LOADED':
+      return { ...state, youtubeDownloaded: action.downloads };
     default:
       return state;
   }
