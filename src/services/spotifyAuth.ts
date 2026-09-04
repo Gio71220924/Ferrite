@@ -12,6 +12,7 @@ const SCOPES = [
 ].join(' ');
 
 const VERIFIER_KEY = 'ferrite:spotify:verifier';
+const STATE_KEY = 'ferrite:spotify:state';
 const TOKEN_KEY = 'ferrite:spotify:token';
 
 export interface SpotifyToken {
@@ -42,6 +43,12 @@ export async function startLogin(): Promise<void> {
   const verifier = generateCodeVerifier();
   sessionStorage.setItem(VERIFIER_KEY, verifier);
   const challenge = await generateCodeChallenge(verifier);
+  // CSRF guard: an attacker who tricks a victim into visiting our callback
+  // URL with their own authorization code could otherwise link their
+  // Spotify account to the victim's session. `state` ties the callback
+  // back to the browser tab that started this specific login.
+  const state = generateCodeVerifier();
+  sessionStorage.setItem(STATE_KEY, state);
 
   const params = new URLSearchParams({
     client_id: import.meta.env.VITE_SPOTIFY_CLIENT_ID,
@@ -50,14 +57,21 @@ export async function startLogin(): Promise<void> {
     code_challenge_method: 'S256',
     code_challenge: challenge,
     scope: SCOPES,
+    state,
   });
 
   window.location.href = `${AUTH_ENDPOINT}?${params.toString()}`;
 }
 
-export async function handleCallback(code: string): Promise<SpotifyToken> {
+export async function handleCallback(code: string, state: string | null): Promise<SpotifyToken> {
   const verifier = sessionStorage.getItem(VERIFIER_KEY);
   if (!verifier) throw new Error('Missing PKCE verifier — start login again');
+
+  const expectedState = sessionStorage.getItem(STATE_KEY);
+  sessionStorage.removeItem(STATE_KEY);
+  if (!expectedState || state !== expectedState) {
+    throw new Error('Spotify login state mismatch — start login again');
+  }
 
   const body = new URLSearchParams({
     grant_type: 'authorization_code',

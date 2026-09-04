@@ -34,14 +34,23 @@ describe('spotifyAuth', () => {
   });
 
   it('handleCallback throws without a PKCE verifier in session storage', async () => {
-    await expect(handleCallback('some-code')).rejects.toThrow(/verifier/i);
+    await expect(handleCallback('some-code', 'state-1')).rejects.toThrow(/verifier/i);
+  });
+
+  it('handleCallback throws when the state param does not match what startLogin stored', async () => {
+    sessionStorage.setItem('ferrite:spotify:verifier', 'test-verifier');
+    sessionStorage.setItem('ferrite:spotify:state', 'expected-state');
+
+    await expect(handleCallback('auth-code-123', 'wrong-state')).rejects.toThrow(/state/i);
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('handleCallback exchanges the code, stores the token, and clears the verifier', async () => {
     sessionStorage.setItem('ferrite:spotify:verifier', 'test-verifier');
+    sessionStorage.setItem('ferrite:spotify:state', 'state-1');
     vi.mocked(fetch).mockResolvedValueOnce(tokenResponse());
 
-    const token = await handleCallback('auth-code-123');
+    const token = await handleCallback('auth-code-123', 'state-1');
 
     expect(token.accessToken).toBe('access-1');
     expect(token.refreshToken).toBe('refresh-1');
@@ -55,8 +64,9 @@ describe('spotifyAuth', () => {
 
   it('getValidAccessToken returns the stored token without refreshing when it is still fresh', async () => {
     sessionStorage.setItem('ferrite:spotify:verifier', 'v');
+    sessionStorage.setItem('ferrite:spotify:state', 's');
     vi.mocked(fetch).mockResolvedValueOnce(tokenResponse({ access_token: 'fresh-token' }));
-    await handleCallback('code');
+    await handleCallback('code', 's');
 
     const result = await getValidAccessToken();
     expect(result).toBe('fresh-token');
@@ -65,8 +75,9 @@ describe('spotifyAuth', () => {
 
   it('getValidAccessToken refreshes when the stored token is about to expire', async () => {
     sessionStorage.setItem('ferrite:spotify:verifier', 'v');
+    sessionStorage.setItem('ferrite:spotify:state', 's');
     vi.mocked(fetch).mockResolvedValueOnce(tokenResponse({ access_token: 'old-token', expires_in: 30 }));
-    await handleCallback('code');
+    await handleCallback('code', 's');
 
     vi.mocked(fetch).mockResolvedValueOnce(tokenResponse({ access_token: 'refreshed-token' }));
     const result = await getValidAccessToken();
@@ -77,8 +88,9 @@ describe('spotifyAuth', () => {
 
   it('clearStoredToken removes the token', async () => {
     sessionStorage.setItem('ferrite:spotify:verifier', 'v');
+    sessionStorage.setItem('ferrite:spotify:state', 's');
     vi.mocked(fetch).mockResolvedValueOnce(tokenResponse());
-    await handleCallback('code');
+    await handleCallback('code', 's');
     expect(getStoredToken()).not.toBeNull();
 
     clearStoredToken();

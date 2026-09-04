@@ -21,11 +21,12 @@ export function Callback() {
       setError('Missing authorization code from Spotify.');
       return;
     }
+    const state = params.get('state');
 
     dispatch({ type: 'CONNECT_START', key: 'spotify' });
     (async () => {
       try {
-        await handleCallback(code);
+        await handleCallback(code, state);
         const [profile, tracks] = await Promise.all([getProfile(), getSavedTracks()]);
         setSpotifyLibrary(tracks, { displayName: profile.displayName, product: profile.product });
         dispatch({ type: 'CONNECT_DONE', key: 'spotify' });
