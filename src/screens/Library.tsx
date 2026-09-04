@@ -28,9 +28,15 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
 
   const effectiveFilter: Source | 'All' = !online && library.filter !== 'Local' ? 'Local' : library.filter;
 
-  const visible = effectiveFilter === 'All'
+  // Offline: show every linked track (local + previously-connected sources'
+  // cached catalog) so streaming rows stay visible-but-dimmed rather than
+  // disappearing — the segment picker still restricts to Local, but the
+  // list itself isn't filtered down while offline.
+  const visible = !online
     ? pool.filter(t => linked(t.source))
-    : pool.filter(t => t.source === effectiveFilter);
+    : effectiveFilter === 'All'
+      ? pool.filter(t => linked(t.source))
+      : pool.filter(t => t.source === effectiveFilter);
 
   return (
     <div className={styles.page}>
@@ -83,7 +89,7 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
       )}
 
       {visible.map(t => (
-        <TrackRow key={t.id} track={t} onClick={() => onPlay(t, visible)} />
+        <TrackRow key={t.id} track={t} offline={!online} onClick={() => onPlay(t, visible)} />
       ))}
     </div>
   );
