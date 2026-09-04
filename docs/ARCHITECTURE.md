@@ -193,12 +193,11 @@ export class AudioEngine {
 
 Local tracks: `fileUrl` is a real `URL.createObjectURL(file)`, so `load()`
 plays real audio. Apple Music/Spotify (mocked) tracks have no `fileUrl`;
-`AudioEngine.load()` is skipped for those. The `setInterval` position-tick
-fallback described in the original plan (so the scrubber still moves for a
-mocked track, per PRD §6.2's "visually indistinguishable to the user") is
-**not yet implemented** — the scrubber currently stays at 0:00 for
-streaming tracks. Tracked as a parked follow-up, not done in Phase 1's
-first pass.
+`AudioEngine.load()` is skipped for those and `AudioBridge` (`App.tsx`)
+instead runs a local `setInterval` that ticks `positionSec` once a second,
+capped at `track.durationSec` — the scrubber moves for a mocked track too
+(PRD §6.2: "visually indistinguishable to the user"), without the real
+audio engine's `timeupdate` event ever firing for it.
 
 ## 7. Duplicate detection
 

@@ -97,6 +97,23 @@ function AudioBridge() {
     engineRef.current!.setVolume(state.volume);
   }, [state.volume]);
 
+  // Mocked/streaming tracks (no fileUrl) never fire the real audio engine's
+  // timeupdate event, so the scrubber would otherwise sit frozen at 0:00.
+  // Approximate real playback with a local 1s counter (PRD §6.2: "visually
+  // indistinguishable to the user") — this owns its own elapsed count
+  // rather than reading state.positionSec each tick, so it doesn't need to
+  // re-run on every TICK it dispatches.
+  useEffect(() => {
+    if (!track || track.fileUrl || !state.playing) return;
+    let elapsed = state.positionSec;
+    const interval = setInterval(() => {
+      elapsed = Math.min(elapsed + 1, track.durationSec);
+      dispatch({ type: 'TICK', positionSec: elapsed });
+    }, 1000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [track?.id, track?.fileUrl, state.playing]);
+
   return null;
 }
 
