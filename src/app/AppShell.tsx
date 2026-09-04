@@ -3,6 +3,7 @@ import { BottomTabBar } from './BottomTabBar';
 import { Sidebar } from './Sidebar';
 import { MiniPlayer } from '../components/MiniPlayer';
 import { DuplicateSheet } from '../components/DuplicateSheet';
+import { YouTubePreview } from '../components/YouTubePreview';
 import { usePlayback } from '../state/PlaybackContext';
 import { useDuplicateSheet } from '../state/DuplicateSheetContext';
 import { useMediaQuery } from '../lib/useMediaQuery';
@@ -20,7 +21,7 @@ export function useShellContext() {
 
 export function AppShell({ getTrack }: { getTrack: (id: string) => Track | undefined }) {
   const { state } = usePlayback();
-  const { requestPlay } = useDuplicateSheet();
+  const { requestPlay, previewTrack, closePreview } = useDuplicateSheet();
   const navigate = useNavigate();
   const isDesktop = useMediaQuery('(min-width: 1024px)');
   const currentId = state.queue[state.currentIndex];
@@ -38,6 +39,7 @@ export function AppShell({ getTrack }: { getTrack: (id: string) => Track | undef
         </div>
         {current && <MiniPlayer track={current} onOpen={() => navigate('/now-playing')} />}
         <DuplicateSheet />
+        <YouTubePreview track={previewTrack} onClose={closePreview} />
       </div>
     );
   }
@@ -47,6 +49,7 @@ export function AppShell({ getTrack }: { getTrack: (id: string) => Track | undef
       {outlet}
       {current && <MiniPlayer track={current} onOpen={() => navigate('/now-playing')} />}
       <DuplicateSheet />
+      <YouTubePreview track={previewTrack} onClose={closePreview} />
       <BottomTabBar />
     </div>
   );

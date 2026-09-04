@@ -9,7 +9,7 @@ describe('Sources', () => {
   beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
   afterEach(() => vi.useRealTimers());
 
-  it('shows importing then connected status after connecting Apple Music', async () => {
+  it('shows importing then connected status after connecting YouTube', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(
       <SourcesProvider>

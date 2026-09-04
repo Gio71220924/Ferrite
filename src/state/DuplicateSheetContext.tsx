@@ -13,9 +13,11 @@ interface Pending {
 
 interface Ctx {
   pending: Pending | null;
+  previewTrack: Track | null;
   requestPlay: (track: Track, pool: Track[]) => void;
   resolve: (source: Source) => void;
   cancel: () => void;
+  closePreview: () => void;
 }
 
 const DuplicateSheetContext = createContext<Ctx | null>(null);
@@ -25,8 +27,16 @@ export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
   const { state: sources, dispatch: sourcesDispatch } = useSources();
   const { dispatch: playbackDispatch } = usePlayback();
   const [pending, setPending] = useState<Pending | null>(null);
+  const [previewTrack, setPreviewTrack] = useState<Track | null>(null);
 
+  // YouTube tracks are metadata-only (no in-app playback, see ARCHITECTURE.md
+  // §5) — anywhere this app would otherwise start playback, a YouTube track
+  // opens the preview panel instead.
   const playTrack = (track: Track, pool: Track[]) => {
+    if (track.source === 'YouTube') {
+      setPreviewTrack(track);
+      return;
+    }
     const ids = pool.map(t => t.id);
     playbackDispatch({ type: 'PLAY_TRACK', trackIds: ids, index: ids.indexOf(track.id) });
   };
@@ -66,9 +76,10 @@ export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
   };
 
   const cancel = () => setPending(null);
+  const closePreview = () => setPreviewTrack(null);
 
   return (
-    <DuplicateSheetContext.Provider value={{ pending, requestPlay, resolve, cancel }}>
+    <DuplicateSheetContext.Provider value={{ pending, previewTrack, requestPlay, resolve, cancel, closePreview }}>
       {children}
     </DuplicateSheetContext.Provider>
   );

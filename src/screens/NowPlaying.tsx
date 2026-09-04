@@ -7,7 +7,7 @@ import styles from './NowPlaying.module.css';
 
 const SOURCE_COLOR: Record<Source, string> = {
   Local: 'var(--local)',
-  'Apple Music': 'var(--apple)',
+  YouTube: 'var(--youtube)',
   Spotify: 'var(--spotify)',
 };
 

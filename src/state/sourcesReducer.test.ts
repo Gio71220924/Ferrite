@@ -3,28 +3,28 @@ import { sourcesReducer, initialSourcesState } from './sourcesReducer';
 
 describe('sourcesReducer', () => {
   it('connect starts syncing then completes on CONNECT_DONE', () => {
-    let s = sourcesReducer(initialSourcesState, { type: 'CONNECT_START', key: 'apple' });
-    expect(s.syncing).toBe('apple');
-    expect(s.apple).toBe(false);
-    s = sourcesReducer(s, { type: 'CONNECT_DONE', key: 'apple' });
+    let s = sourcesReducer(initialSourcesState, { type: 'CONNECT_START', key: 'youtube' });
+    expect(s.syncing).toBe('youtube');
+    expect(s.youtube).toBe(false);
+    s = sourcesReducer(s, { type: 'CONNECT_DONE', key: 'youtube' });
     expect(s.syncing).toBeNull();
-    expect(s.apple).toBe(true);
+    expect(s.youtube).toBe(true);
   });
 
   it('a stale CONNECT_DONE after cancel does not silently reconnect the source', () => {
-    let s = sourcesReducer(initialSourcesState, { type: 'CONNECT_START', key: 'apple' });
-    s = sourcesReducer(s, { type: 'DISCONNECT', key: 'apple' });
+    let s = sourcesReducer(initialSourcesState, { type: 'CONNECT_START', key: 'youtube' });
+    s = sourcesReducer(s, { type: 'DISCONNECT', key: 'youtube' });
     expect(s.syncing).toBeNull();
-    expect(s.apple).toBe(false);
-    s = sourcesReducer(s, { type: 'CONNECT_DONE', key: 'apple' });
-    expect(s.apple).toBe(false);
+    expect(s.youtube).toBe(false);
+    s = sourcesReducer(s, { type: 'CONNECT_DONE', key: 'youtube' });
+    expect(s.youtube).toBe(false);
     expect(s.syncing).toBeNull();
   });
 
   it('disconnect clears the linked flag', () => {
-    const connected = { ...initialSourcesState, apple: true };
-    const s = sourcesReducer(connected, { type: 'DISCONNECT', key: 'apple' });
-    expect(s.apple).toBe(false);
+    const connected = { ...initialSourcesState, youtube: true };
+    const s = sourcesReducer(connected, { type: 'DISCONNECT', key: 'youtube' });
+    expect(s.youtube).toBe(false);
   });
 
   it('SET_PREF toggles a preference', () => {
@@ -34,8 +34,8 @@ describe('sourcesReducer', () => {
 
   it('SET_DUPLICATE_PREFERENCE records which source to auto-pick for future duplicates', () => {
     expect(initialSourcesState.duplicatePreference).toBeNull();
-    const s = sourcesReducer(initialSourcesState, { type: 'SET_DUPLICATE_PREFERENCE', source: 'Apple Music' });
-    expect(s.duplicatePreference).toBe('Apple Music');
+    const s = sourcesReducer(initialSourcesState, { type: 'SET_DUPLICATE_PREFERENCE', source: 'YouTube' });
+    expect(s.duplicatePreference).toBe('YouTube');
   });
 
   it('SET_REMEMBER_DUPLICATES sets the flag explicitly', () => {

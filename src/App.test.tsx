@@ -23,21 +23,18 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Library' })).toBeInTheDocument();
   });
 
-  it('ticks the scrubber for a mocked streaming track that has no real audio to play', async () => {
+  it('ticks the scrubber for a mocked demo track that has no real audio to play', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     localStorage.setItem('ferrite:onboarded', 'true');
+    // The Harbour Tapes album's demo tracks are labeled 'Local' but, like all
+    // of data/mockLibrary.ts's album data, carry no real fileUrl — this is
+    // the only reachable case of AudioBridge's mocked-tick fallback now that
+    // YouTube tracks open a preview instead of entering playback.
+    window.history.pushState({}, '', '/album/alb-harbour-tapes');
     render(<App />);
 
-    await user.click(screen.getByRole('link', { name: /sources/i }));
-    await user.click(screen.getAllByRole('button', { name: 'Connect' })[0]);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1600);
-    });
-
-    await user.click(screen.getByRole('link', { name: /search/i }));
-    await user.type(screen.getByPlaceholderText('Search'), 'slow');
-    await user.click(screen.getByText('Slow Static'));
+    await user.click(screen.getByText('Cassette Sunday'));
 
     await user.click(screen.getByRole('button', { name: 'Open now playing' }));
     expect(screen.getByText('0:00')).toBeInTheDocument();

@@ -3,7 +3,7 @@ import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { useOnlineStatus } from '../lib/useOnlineStatus';
-import { appleMusicConnector } from '../services/mockAppleMusic';
+import { youtubeConnector } from '../services/mockYouTube';
 import { getSpotifyTracks } from '../services/spotifyLive';
 import { getRecentlyPlayedIds } from '../lib/recentlyPlayed';
 import { TrackRow } from '../components/TrackRow';
@@ -11,22 +11,22 @@ import { FerriteMark } from '../components/FerriteMark';
 import { WifiOff } from 'lucide-react';
 import styles from './Library.module.css';
 
-const ALL_SOURCES: (Source | 'All')[] = ['All', 'Local', 'Apple Music', 'Spotify'];
+const ALL_SOURCES: (Source | 'All')[] = ['All', 'Local', 'YouTube', 'Spotify'];
 
 export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => void }) {
   const { state: library, dispatch } = useLibrary();
   const { state: sources } = useSources();
   const online = useOnlineStatus();
 
-  const linked = (s: Source) => s === 'Local' || (s === 'Apple Music' ? sources.apple : sources.spotify);
+  const linked = (s: Source) => s === 'Local' || (s === 'YouTube' ? sources.youtube : sources.spotify);
 
   const pool: Track[] = useMemo(() => {
     const streaming = [
-      ...(sources.apple ? appleMusicConnector.catalog() : []),
+      ...(sources.youtube ? youtubeConnector.catalog() : []),
       ...(sources.spotify ? getSpotifyTracks() : []),
     ];
     return [...library.localTracks, ...streaming];
-  }, [library.localTracks, sources.apple, sources.spotify]);
+  }, [library.localTracks, sources.youtube, sources.spotify]);
 
   const recentTracks = useMemo(() => {
     const byId = new Map(pool.map(t => [t.id, t]));
@@ -90,7 +90,7 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
               disabled={disabled}
               onClick={() => dispatch({ type: 'SET_FILTER', filter: s })}
             >
-              {s === 'Apple Music' ? 'Apple' : s}
+              {s}
             </button>
           );
         })}

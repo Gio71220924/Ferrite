@@ -1,4 +1,4 @@
-export type Source = 'Local' | 'Apple Music' | 'Spotify';
+export type Source = 'Local' | 'YouTube' | 'Spotify';
 
 export interface Track {
   id: string;

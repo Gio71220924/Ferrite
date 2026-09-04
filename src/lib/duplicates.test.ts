@@ -16,7 +16,7 @@ describe('duplicates', () => {
   it('groups same title+artist across sources', () => {
     const tracks = [
       t({ id: 'a', source: 'Local' }),
-      t({ id: 'b', source: 'Apple Music' }),
+      t({ id: 'b', source: 'YouTube' }),
       t({ id: 'c', title: 'Unrelated Song' }),
     ];
     const groups = findDuplicates(tracks);

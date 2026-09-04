@@ -1,12 +1,12 @@
 import { useSources } from '../../state/SourcesContext';
-import { appleMusicConnector } from '../../services/mockAppleMusic';
+import { youtubeConnector } from '../../services/mockYouTube';
 import { startLogin } from '../../services/spotifyAuth';
 import type { SourceConnector } from '../../services/sourceConnector';
 import type { StreamingKey } from '../../state/sourcesReducer';
 import styles from './OnboardingFlow.module.css';
 
 const SERVICES: { key: StreamingKey; name: string; connector: SourceConnector | null }[] = [
-  { key: 'apple', name: 'Apple Music', connector: appleMusicConnector },
+  { key: 'youtube', name: 'YouTube', connector: youtubeConnector },
   { key: 'spotify', name: 'Spotify', connector: null },
 ];
 

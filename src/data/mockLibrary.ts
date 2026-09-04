@@ -1,11 +1,11 @@
 import type { Track, Album } from '../types/track';
 
-export const appleMusicCatalog: Track[] = [
-  { id: 'am-1', title: 'Slow Static', artist: 'The Harbour Lights', source: 'Apple Music', durationSec: 221, format: 'Lossless' },
-  { id: 'am-2', title: 'Weather Systems', artist: 'Junia', source: 'Apple Music', durationSec: 380, format: 'Lossless' },
-  { id: 'am-3', title: 'Midsummer Static', artist: 'The Harbour Lights', source: 'Apple Music', durationSec: 221, format: 'Lossless' },
-  { id: 'am-4', title: 'Midnight Ferry', artist: 'Rosalind Ver', source: 'Apple Music', durationSec: 278, format: 'Lossless 24/48' },
-  { id: 'am-5', title: 'Midnight Ferry (Live)', artist: 'Rosalind Ver', source: 'Apple Music', durationSec: 278, format: 'Lossless' },
+export const youtubeCatalog: Track[] = [
+  { id: 'am-1', title: 'Slow Static', artist: 'The Harbour Lights', source: 'YouTube', durationSec: 221 },
+  { id: 'am-2', title: 'Weather Systems', artist: 'Junia', source: 'YouTube', durationSec: 380 },
+  { id: 'am-3', title: 'Midsummer Static', artist: 'The Harbour Lights', source: 'YouTube', durationSec: 221 },
+  { id: 'am-4', title: 'Midnight Ferry', artist: 'Rosalind Ver', source: 'YouTube', durationSec: 278 },
+  { id: 'am-5', title: 'Midnight Ferry (Live)', artist: 'Rosalind Ver', source: 'YouTube', durationSec: 278 },
 ];
 
 export const spotifyCatalog: Track[] = [
@@ -32,12 +32,12 @@ export const albumTracks: Record<string, Track> = {
   'ht-4': { id: 'ht-4', title: 'Harbour Lights', artist: 'Rosalind Ver', source: 'Local', durationSec: 301, format: 'FLAC 24/96', albumId: 'alb-harbour-tapes' },
   'ht-5': { id: 'ht-5', title: 'Saltwater', artist: 'Rosalind Ver', source: 'Local', durationSec: 224, format: 'FLAC 24/96', albumId: 'alb-harbour-tapes' },
   'ht-6': { id: 'ht-6', title: 'Ferry Home', artist: 'Rosalind Ver', source: 'Local', durationSec: 372, format: 'FLAC 24/96', albumId: 'alb-harbour-tapes' },
-  'ws-1': { id: 'ws-1', title: 'Weather Systems', artist: 'Junia', source: 'Apple Music', durationSec: 380, albumId: 'alb-weather-systems' },
-  'ws-2': { id: 'ws-2', title: 'Barometer', artist: 'Junia', source: 'Apple Music', durationSec: 238, albumId: 'alb-weather-systems' },
-  'ws-3': { id: 'ws-3', title: 'Cold Front', artist: 'Junia', source: 'Apple Music', durationSec: 271, albumId: 'alb-weather-systems' },
-  'ws-4': { id: 'ws-4', title: 'Anticyclone', artist: 'Junia', source: 'Apple Music', durationSec: 309, albumId: 'alb-weather-systems' },
-  'ws-5': { id: 'ws-5', title: 'Still Air', artist: 'Junia', source: 'Apple Music', durationSec: 167, albumId: 'alb-weather-systems' },
-  'ws-6': { id: 'ws-6', title: 'After Rain', artist: 'Junia', source: 'Apple Music', durationSec: 423, albumId: 'alb-weather-systems' },
+  'ws-1': { id: 'ws-1', title: 'Weather Systems', artist: 'Junia', source: 'YouTube', durationSec: 380, albumId: 'alb-weather-systems' },
+  'ws-2': { id: 'ws-2', title: 'Barometer', artist: 'Junia', source: 'YouTube', durationSec: 238, albumId: 'alb-weather-systems' },
+  'ws-3': { id: 'ws-3', title: 'Cold Front', artist: 'Junia', source: 'YouTube', durationSec: 271, albumId: 'alb-weather-systems' },
+  'ws-4': { id: 'ws-4', title: 'Anticyclone', artist: 'Junia', source: 'YouTube', durationSec: 309, albumId: 'alb-weather-systems' },
+  'ws-5': { id: 'ws-5', title: 'Still Air', artist: 'Junia', source: 'YouTube', durationSec: 167, albumId: 'alb-weather-systems' },
+  'ws-6': { id: 'ws-6', title: 'After Rain', artist: 'Junia', source: 'YouTube', durationSec: 423, albumId: 'alb-weather-systems' },
   'ns-1': { id: 'ns-1', title: 'Nightbus', artist: 'Ferrograph', source: 'Local', durationSec: 206, format: 'FLAC', albumId: 'alb-nightbus-sessions' },
   'ns-2': { id: 'ns-2', title: 'Depot', artist: 'Ferrograph', source: 'Local', durationSec: 252, format: 'FLAC', albumId: 'alb-nightbus-sessions' },
   'ns-3': { id: 'ns-3', title: 'Last Service', artist: 'Ferrograph', source: 'Spotify', durationSec: 230, format: 'Lossless', albumId: 'alb-nightbus-sessions' },

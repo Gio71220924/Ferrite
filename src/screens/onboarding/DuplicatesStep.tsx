@@ -27,8 +27,8 @@ export function DuplicatesStep({ onFinish }: { onFinish: () => void }) {
           <div style={{ color: 'var(--l2)', fontSize: 13, marginTop: 4 }}>Streams only when no file exists.</div>
         </button>
         <button
-          onClick={() => setRule('Apple Music')}
-          style={{ textAlign: 'left', padding: 18, borderRadius: 'var(--r-lg)', background: rule === 'Apple Music' ? 'rgba(255,255,255,.09)' : 'rgba(255,255,255,.03)', border: '1px solid var(--card-line)' }}
+          onClick={() => setRule('Spotify')}
+          style={{ textAlign: 'left', padding: 18, borderRadius: 'var(--r-lg)', background: rule === 'Spotify' ? 'rgba(255,255,255,.09)' : 'rgba(255,255,255,.03)', border: '1px solid var(--card-line)' }}
           data-tap
         >
           <div style={{ fontWeight: 590, color: 'var(--l1)' }}>Play the stream</div>

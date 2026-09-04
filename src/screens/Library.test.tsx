@@ -31,8 +31,8 @@ function Seeded({ onPlay = () => {} }: { onPlay?: (track: Track, pool: Track[]) 
             type: 'IMPORT_LOCAL_FILES',
             tracks: [{ id: 'l1', title: 'Midnight Ferry', artist: 'Rosalind Ver', source: 'Local', durationSec: 244 }],
           });
-          sourcesDispatch({ type: 'CONNECT_START', key: 'apple' });
-          sourcesDispatch({ type: 'CONNECT_DONE', key: 'apple' });
+          sourcesDispatch({ type: 'CONNECT_START', key: 'youtube' });
+          sourcesDispatch({ type: 'CONNECT_DONE', key: 'youtube' });
         }}
       >
         seed

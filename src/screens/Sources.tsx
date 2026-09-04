@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useSources } from '../state/SourcesContext';
 import { useLibrary } from '../state/LibraryContext';
-import { appleMusicConnector } from '../services/mockAppleMusic';
+import { youtubeConnector } from '../services/mockYouTube';
 import { startLogin, clearStoredToken } from '../services/spotifyAuth';
 import { getSpotifyTracks, getSpotifyProfile, clearSpotifyLibrary } from '../services/spotifyLive';
 import { trackFromFile } from '../lib/trackFromFile';
@@ -10,7 +10,7 @@ import type { SourcesState, StreamingKey } from '../state/sourcesReducer';
 import styles from './Sources.module.css';
 
 const SERVICES: { key: StreamingKey; name: string; color: string; connector: SourceConnector | null }[] = [
-  { key: 'apple', name: 'Apple Music', color: 'var(--apple)', connector: appleMusicConnector },
+  { key: 'youtube', name: 'YouTube', color: 'var(--youtube)', connector: youtubeConnector },
   { key: 'spotify', name: 'Spotify', color: 'var(--spotify)', connector: null },
 ];
 
@@ -26,7 +26,7 @@ export function Sources() {
   const [lastSynced, setLastSynced] = useState<Partial<Record<StreamingKey, string>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const anyStreamLinked = state.apple || state.spotify;
+  const anyStreamLinked = state.youtube || state.spotify;
 
   const connect = async (key: StreamingKey, connector: SourceConnector) => {
     dispatch({ type: 'CONNECT_START', key });
@@ -55,7 +55,7 @@ export function Sources() {
         const statusText = busy
           ? 'Importing library…'
           : on
-            ? key === 'apple'
+            ? key === 'youtube'
               ? '812 songs · 24 playlists'
               : `${getSpotifyTracks().length.toLocaleString()} songs${spotifyProfile ? ` · ${spotifyProfile.displayName}` : ''}`
             : 'Not connected';

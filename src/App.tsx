@@ -13,7 +13,7 @@ import { Queue } from './screens/Queue';
 import { Album } from './screens/Album';
 import { Callback } from './screens/Callback';
 import { OnboardingFlow } from './screens/onboarding/OnboardingFlow';
-import { albums, albumTracks, appleMusicCatalog } from './data/mockLibrary';
+import { albums, albumTracks, youtubeCatalog } from './data/mockLibrary';
 import { AudioEngine } from './audio/AudioEngine';
 import { SpotifyPlayer } from './audio/SpotifyPlayer';
 import { getValidAccessToken, getStoredToken, clearStoredToken } from './services/spotifyAuth';
@@ -27,13 +27,13 @@ function useTrackLookup() {
   return useMemo(() => {
     const all: Track[] = [
       ...library.localTracks,
-      ...(sources.apple ? appleMusicCatalog : []),
+      ...(sources.youtube ? youtubeCatalog : []),
       ...(sources.spotify ? getSpotifyTracks() : []),
       ...Object.values(albumTracks),
     ];
     const byId = new Map(all.map(t => [t.id, t]));
     return (id: string) => byId.get(id);
-  }, [library.localTracks, sources.apple, sources.spotify]);
+  }, [library.localTracks, sources.youtube, sources.spotify]);
 }
 
 function LibraryRoute() {

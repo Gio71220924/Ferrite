@@ -1,9 +1,9 @@
 import type { Source } from '../types/track';
 
-export type StreamingKey = 'apple' | 'spotify';
+export type StreamingKey = 'youtube' | 'spotify';
 
 export interface SourcesState {
-  apple: boolean;
+  youtube: boolean;
   spotify: boolean;
   syncing: StreamingKey | null;
   prefs: { wifiOnly: boolean; preferLocal: boolean; cacheOffline: boolean };
@@ -15,7 +15,7 @@ export interface SourcesState {
 }
 
 export const initialSourcesState: SourcesState = {
-  apple: false,
+  youtube: false,
   spotify: false,
   syncing: null,
   prefs: { wifiOnly: true, preferLocal: false, cacheOffline: true },

@@ -3,12 +3,12 @@ import { SearchIcon } from 'lucide-react';
 import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
-import { appleMusicConnector } from '../services/mockAppleMusic';
+import { youtubeConnector } from '../services/mockYouTube';
 import { getSpotifyTracks } from '../services/spotifyLive';
 import { TrackRow } from '../components/TrackRow';
 import styles from './Search.module.css';
 
-const SCOPES: (Source | 'All')[] = ['All', 'Local', 'Apple Music', 'Spotify'];
+const SCOPES: (Source | 'All')[] = ['All', 'Local', 'YouTube', 'Spotify'];
 
 export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => void }) {
   const [query, setQuery] = useState('');
@@ -16,15 +16,15 @@ export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => vo
   const { state: library } = useLibrary();
   const { state: sources } = useSources();
 
-  const linked = (s: Source) => s === 'Local' || (s === 'Apple Music' ? sources.apple : sources.spotify);
+  const linked = (s: Source) => s === 'Local' || (s === 'YouTube' ? sources.youtube : sources.spotify);
 
   const bySource: Record<Source, Track[]> = {
     Local: library.localTracks,
-    'Apple Music': sources.apple ? appleMusicConnector.catalog() : [],
+    YouTube: sources.youtube ? youtubeConnector.catalog() : [],
     Spotify: sources.spotify ? getSpotifyTracks() : [],
   };
 
-  const allSources: Source[] = ['Local', 'Apple Music', 'Spotify'];
+  const allSources: Source[] = ['Local', 'YouTube', 'Spotify'];
   const scopeNames = (scope === 'All' ? allSources : [scope as Source]).filter(linked);
 
   const groups = useMemo(() => {
@@ -36,7 +36,7 @@ export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => vo
       }))
       .filter(g => g.items.length > 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, scope, library.localTracks, sources.apple, sources.spotify]);
+  }, [query, scope, library.localTracks, sources.youtube, sources.spotify]);
 
   return (
     <div className={styles.page}>
@@ -62,7 +62,7 @@ export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => vo
               disabled={disabled}
               onClick={() => setScope(s)}
             >
-              {s === 'Apple Music' ? 'Apple' : s}
+              {s}
             </button>
           );
         })}

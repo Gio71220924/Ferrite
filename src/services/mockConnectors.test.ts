@@ -1,13 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { appleMusicConnector } from './mockAppleMusic';
+import { youtubeConnector } from './mockYouTube';
 import { spotifyConnector } from './mockSpotify';
 
 describe('mock connectors', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  it('appleMusicConnector resolves after the mock delay with counts', async () => {
-    const p = appleMusicConnector.connect();
+  it('youtubeConnector resolves after the mock delay with counts', async () => {
+    const p = youtubeConnector.connect();
     await vi.advanceTimersByTimeAsync(1600);
     await expect(p).resolves.toEqual({ trackCount: 812, playlistCount: 24 });
   });
@@ -19,7 +19,7 @@ describe('mock connectors', () => {
   });
 
   it('catalog() returns the mock streaming tracks', () => {
-    expect(appleMusicConnector.catalog().length).toBeGreaterThan(0);
+    expect(youtubeConnector.catalog().length).toBeGreaterThan(0);
     expect(spotifyConnector.catalog().length).toBeGreaterThan(0);
   });
 });
