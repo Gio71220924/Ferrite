@@ -36,9 +36,11 @@ one linked source, Ferrite asks which copy to play (once, or remembered).
 
 ## 4. Non-goals (this phase)
 
-- Real Apple Music / Spotify OAuth and playback SDKs. Phase 1 mocks the connect
-  flow (a timed "Importing library…" state) and the "streaming" catalog. See
-  §9 Phased Rollout.
+- Real Apple Music OAuth and playback. Apple Music stays on the Phase 1 mock
+  connect flow (a timed "Importing library…" state) and mock catalog
+  indefinitely — explicitly descoped (developer account cost, and this app's
+  actual target is personal/small-group use, not App Store distribution). See
+  §9 Phased Rollout. Spotify, by contrast, is real as of Phase 2 (§9).
 - Native iOS app / App Store distribution. Phase 1 ships as a browser web app
   (installable as a PWA later) so it can be built and tested on the current
   (Windows, no Xcode) machine. See `docs/ARCHITECTURE.md`.
@@ -80,13 +82,20 @@ Each subsection maps 1:1 to a numbered screen in `Ferrite.dc.html`.
   (Lyrics / AirPlay / Queue — Queue is functional and opens the Queue screen,
   Lyrics/AirPlay are visual-only in phase 1).
 - Real transport: play/pause controls actual `<audio>` playback for Local
-  tracks. For Apple Music/Spotify (mocked) tracks, transport updates UI state
-  only and is visually indistinguishable to the user (no dead-end error).
+  tracks, and real Spotify Connect playback (via the Web Playback SDK) for
+  Spotify tracks once logged in. For Apple Music (still mocked) tracks,
+  transport updates UI state only and is visually indistinguishable to the
+  user (no dead-end error). A Spotify track that fails to play (most
+  commonly: the linked account isn't Premium) shows an explicit message
+  instead of silently doing nothing.
 
 ### 6.3 Sources & Sync (03)
 - One card per service (Apple Music, Spotify) with connect/unlink button and
   status line (song/playlist counts once connected, "Importing library…"
-  with a spinner while connecting, "Not connected" otherwise).
+  with a spinner while connecting, "Not connected" otherwise). Apple Music's
+  connect is the Phase 1 mock; Spotify's is a real OAuth login (redirects to
+  Spotify, back to a `/callback` route) and its status line shows the
+  account's actual saved-track count and display name once connected.
 - "Last synced" timestamp per service.
 - Sync preferences (toggles): "Sync over Wi-Fi only" and "Prefer local file
   when duplicated" (both disabled/dimmed if no streaming source is linked),
@@ -161,8 +170,9 @@ Each subsection maps 1:1 to a numbered screen in `Ferrite.dc.html`.
   imported, not a fake timer, when the user arrives via "add files"; a
   scripted demo progression is acceptable when no files have been chosen
   yet (so the screen is still presentable standalone).
-- Step 2 (Connect): Apple Music / Spotify cards with a Connect button
-  (same mocked connect flow as Sources), Skip.
+- Step 2 (Connect): Apple Music (mocked) / Spotify (real OAuth login) cards
+  with a Connect button, Skip. The step index is persisted across Spotify's
+  full-page OAuth redirect so the wizard resumes here instead of restarting.
 - Step 3 (Duplicates): pick the default duplicate-resolution rule ("Play my
   file" vs "Play the stream") — this seeds the "remember for all
   duplicates" preference from §6.5. "Open Library" finishes onboarding.
@@ -197,14 +207,22 @@ Each subsection maps 1:1 to a numbered screen in `Ferrite.dc.html`.
 
 ## 9. Phased rollout
 
-- **Phase 1 (this plan):** Web app, real local playback, mocked Apple
+- **Phase 1 (shipped):** Web app, real local playback, mocked Apple
   Music/Spotify connect + catalog. See `docs/ARCHITECTURE.md`.
-- **Phase 2:** Real Apple Music (MusicKit JS) and Spotify (Web Playback
-  SDK + Web API) integration behind the same `SourceConnector` interface
-  defined in Phase 1 — swap the mock implementation, UI does not change.
+- **Phase 2 (shipped, Spotify only):** Real Spotify integration — OAuth
+  2.0 Authorization Code + PKCE login, real Web API (saved tracks, profile,
+  album artwork), and real playback via the Web Playback SDK. Scoped down
+  from the original "both services" plan to Spotify only: Apple Music
+  requires a paid Apple Developer account and this app's real target is
+  personal use (~5 people), not App Store distribution, so Apple Music
+  stays mocked indefinitely rather than as a "later" placeholder. Because
+  Spotify's login is a full-page OAuth redirect (not an in-place async
+  call), it does not fit through the `SourceConnector` interface the way
+  this section originally assumed — see `docs/ARCHITECTURE.md` §5 for how
+  Spotify's real path diverges from Apple's mocked one.
 - **Phase 3:** Packaging decision (PWA install vs. a native/Capacitor
-  wrapper) revisited once Phase 2 integrations are real and a target
-  platform (iOS App Store vs. installable web) is chosen.
+  wrapper), if ever revisited — not currently planned given the
+  personal-use scope.
 
 ## 10. Open questions
 
