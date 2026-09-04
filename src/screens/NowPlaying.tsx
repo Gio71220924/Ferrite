@@ -1,9 +1,15 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronDown, Play, Pause, SkipBack, SkipForward, ListMusic } from 'lucide-react';
+import { ChevronDown, Play, Pause, SkipBack, SkipForward, ListMusic, Volume1, Volume2 } from 'lucide-react';
 import { usePlayback } from '../state/PlaybackContext';
 import { formatDuration } from '../lib/format';
-import type { Track } from '../types/track';
+import type { Track, Source } from '../types/track';
 import styles from './NowPlaying.module.css';
+
+const SOURCE_COLOR: Record<Source, string> = {
+  Local: 'var(--local)',
+  'Apple Music': 'var(--apple)',
+  Spotify: 'var(--spotify)',
+};
 
 export function NowPlaying({ track, onClose }: { track: Track; onClose: () => void }) {
   const { state, dispatch } = usePlayback();
@@ -17,6 +23,13 @@ export function NowPlaying({ track, onClose }: { track: Track; onClose: () => vo
       </button>
 
       <div className={styles.art} />
+
+      <div className={styles.badge}>
+        <div className={styles.badgeDot} style={{ background: SOURCE_COLOR[track.source] }} />
+        <span className={styles.badgeText}>
+          {track.source.toUpperCase()}{track.format ? ` · ${track.format}` : ''}
+        </span>
+      </div>
 
       <div className={styles.title}>{track.title}</div>
       <div className={styles.artist}>{track.artist} — {track.source}</div>
@@ -44,6 +57,21 @@ export function NowPlaying({ track, onClose }: { track: Track; onClose: () => vo
         <button onClick={() => dispatch({ type: 'NEXT' })} aria-label="Next" data-tap>
           <SkipForward size={30} />
         </button>
+      </div>
+
+      <div className={styles.volumeRow}>
+        <Volume1 size={16} color="var(--l3)" />
+        <input
+          className={styles.volumeSlider}
+          type="range"
+          min={0}
+          max={1}
+          step={0.01}
+          value={state.volume}
+          onChange={e => dispatch({ type: 'SET_VOLUME', volume: Number(e.target.value) })}
+          aria-label="Volume"
+        />
+        <Volume2 size={16} color="var(--l3)" />
       </div>
 
       <button

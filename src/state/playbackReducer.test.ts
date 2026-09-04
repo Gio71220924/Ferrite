@@ -32,4 +32,10 @@ describe('playbackReducer', () => {
     const s = playbackReducer(initialPlaybackState, { type: 'TOGGLE_PLAY' });
     expect(s.playing).toBe(true);
   });
+
+  it('SET_VOLUME clamps to the 0-1 range', () => {
+    expect(playbackReducer(initialPlaybackState, { type: 'SET_VOLUME', volume: 0.3 }).volume).toBe(0.3);
+    expect(playbackReducer(initialPlaybackState, { type: 'SET_VOLUME', volume: 1.5 }).volume).toBe(1);
+    expect(playbackReducer(initialPlaybackState, { type: 'SET_VOLUME', volume: -0.2 }).volume).toBe(0);
+  });
 });

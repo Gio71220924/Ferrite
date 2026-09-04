@@ -93,6 +93,10 @@ function AudioBridge() {
     else engineRef.current!.pause();
   }, [state.playing, track?.fileUrl]);
 
+  useEffect(() => {
+    engineRef.current!.setVolume(state.volume);
+  }, [state.volume]);
+
   return null;
 }
 

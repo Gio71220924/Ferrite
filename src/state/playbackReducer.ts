@@ -21,6 +21,7 @@ export type PlaybackAction =
   | { type: 'CLEAR_UPCOMING' }
   | { type: 'TOGGLE_PLAY' }
   | { type: 'SEEK'; positionSec: number }
+  | { type: 'SET_VOLUME'; volume: number }
   | { type: 'NEXT' }
   | { type: 'PREV' }
   | { type: 'TICK'; positionSec: number };
@@ -44,6 +45,8 @@ export function playbackReducer(state: PlaybackState, action: PlaybackAction): P
       return { ...state, playing: !state.playing };
     case 'SEEK':
       return { ...state, positionSec: action.positionSec };
+    case 'SET_VOLUME':
+      return { ...state, volume: Math.min(1, Math.max(0, action.volume)) };
     case 'NEXT':
       return { ...state, currentIndex: (state.currentIndex + 1) % Math.max(state.queue.length, 1), positionSec: 0 };
     case 'PREV':

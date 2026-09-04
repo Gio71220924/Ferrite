@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
@@ -31,6 +31,20 @@ describe('NowPlaying', () => {
     const toggle = screen.getByRole('button', { name: /pause/i });
     await userEvent.click(toggle);
     expect(screen.getByRole('button', { name: /play/i })).toBeInTheDocument();
+  });
+
+  it('dragging the volume slider dispatches SET_VOLUME', async () => {
+    render(
+      <MemoryRouter>
+        <PlaybackProvider>
+          <Harness />
+        </PlaybackProvider>
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByText('start'));
+    const slider = screen.getByRole('slider', { name: /volume/i });
+    fireEvent.change(slider, { target: { value: '0.2' } });
+    expect(slider).toHaveValue('0.2');
   });
 
   it('navigates to the queue screen when the queue button is clicked', async () => {

@@ -7,3 +7,8 @@
 .times { display: flex; justify-content: space-between; margin-top: 4px; font: 500 var(--t-foot) var(--f-mono); color: var(--l2); }
 .transport { display: flex; align-items: center; justify-content: center; gap: 38px; padding: 20px 0 0; }
 .playBtn { width: 76px; height: 76px; border-radius: 38px; background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.24); display: flex; align-items: center; justify-content: center; }
+.badge { display: inline-flex; align-items: center; gap: 7px; padding: 6px 11px 6px 8px; border-radius: var(--r-md); background: rgba(12,10,18,.45); border: 1px solid rgba(255,255,255,.2); align-self: center; margin-top: 16px; }
+.badgeDot { width: 7px; height: 7px; border-radius: 4px; background: var(--local); }
+.badgeText { font: 590 var(--t-cap) var(--f-text); letter-spacing: .02em; color: var(--l1); }
+.volumeRow { display: flex; align-items: center; gap: 12px; padding: 24px 0 0; }
+.volumeSlider { flex: 1; accent-color: var(--l1); }
