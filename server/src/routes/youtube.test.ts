@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import { Router } from 'express';
 import { youtubeRouter } from './youtube.js';
 
 describe('youtube router', () => {
