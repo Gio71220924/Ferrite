@@ -126,11 +126,17 @@ function AudioBridge() {
         sp.pause();
         return;
       }
-      if (lastSpotifyTrackId.current !== track.id) {
-        lastSpotifyTrackId.current = track.id;
-        await sp.playUri(track.id, token);
-      } else {
-        sp.resume();
+      try {
+        if (lastSpotifyTrackId.current !== track.id) {
+          lastSpotifyTrackId.current = track.id;
+          await sp.playUri(track.id, token);
+        } else {
+          sp.resume();
+        }
+      } catch (e) {
+        if (!cancelled) {
+          dispatch({ type: 'PLAYBACK_ERROR', message: e instanceof Error ? e.message : 'Spotify playback failed' });
+        }
       }
     })();
     return () => {

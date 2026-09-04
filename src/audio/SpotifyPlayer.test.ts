@@ -93,6 +93,15 @@ describe('SpotifyPlayer', () => {
     await expect(player.playUri('track123', 'token-abc')).rejects.toThrow(/not ready/i);
   });
 
+  it('playUri throws a premium-required error on a 403 response', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 403 }));
+    const player = new SpotifyPlayer();
+    await player.connect(async () => 'token-abc');
+    fakePlayer.emit('ready', { device_id: 'device-1' });
+
+    await expect(player.playUri('track123', 'token-abc')).rejects.toThrow(/premium/i);
+  });
+
   it('pause/resume/seek/setVolume delegate to the underlying player', async () => {
     const player = new SpotifyPlayer();
     await player.connect(async () => 'token-abc');

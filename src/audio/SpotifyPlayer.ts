@@ -88,11 +88,15 @@ export class SpotifyPlayer {
 
   async playUri(trackId: string, token: string): Promise<void> {
     if (!this.deviceId) throw new Error('Spotify player not ready');
-    await fetch(`${PLAYER_API}/play?device_id=${this.deviceId}`, {
+    const res = await fetch(`${PLAYER_API}/play?device_id=${this.deviceId}`, {
       method: 'PUT',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
     });
+    if (!res.ok) {
+      if (res.status === 403) throw new Error('This Spotify account needs Premium to play here');
+      throw new Error(`Spotify playback failed: ${res.status}`);
+    }
   }
 
   pause(): void {

@@ -33,6 +33,11 @@ export function NowPlaying({ track, onClose }: { track: Track; onClose: () => vo
 
       <div className={styles.title}>{track.title}</div>
       <div className={styles.artist}>{track.artist} — {track.source}</div>
+      {state.error && (
+        <div style={{ color: 'var(--red, #ff5c5c)', font: '500 13px var(--f-text)', textAlign: 'center', marginTop: 8 }}>
+          {state.error}
+        </div>
+      )}
 
       <div className={styles.scrubTrack}>
         <div className={styles.scrubFill} style={{ width: `${pct}%` }} />
