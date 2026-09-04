@@ -10,3 +10,6 @@ dist/
 server/node_modules/
 server/dist/
 server/src/storage/audio/*.mp3
+
+.vercel
+.env*
