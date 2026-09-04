@@ -5,3 +5,8 @@ node_modules/
 dist/
 .env.local
 .env*.local
+
+# Server
+server/node_modules/
+server/dist/
+server/src/storage/audio/*.mp3
