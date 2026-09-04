@@ -5,3 +5,5 @@
 .sectionRow { display: flex; align-items: baseline; justify-content: space-between; padding: 0 22px 6px; }
 .row { display: flex; align-items: center; gap: 13px; padding: 8px 22px; border-bottom: 1px solid var(--sep); }
 .moveBtns { display: flex; flex-direction: column; gap: 2px; }
+.moveBtn { min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
+.moveBtn:disabled { opacity: 0.35; cursor: not-allowed; }

@@ -49,11 +49,23 @@ export function Queue({ getTrack }: { getTrack: (id: string) => Track | undefine
               <div style={{ color: 'var(--l2)', fontSize: 13 }}>{track.artist} · {formatDuration(track.durationSec)}</div>
             </div>
             <div className={styles.moveBtns}>
-              <button onClick={() => move(absoluteIndex, absoluteIndex - 1)} aria-label="Move up" data-tap>
-                <ArrowUp size={14} />
+              <button
+                className={styles.moveBtn}
+                onClick={() => move(absoluteIndex, absoluteIndex - 1)}
+                disabled={absoluteIndex <= state.currentIndex + 1}
+                aria-label="Move up"
+                data-tap
+              >
+                <ArrowUp size={16} />
               </button>
-              <button onClick={() => move(absoluteIndex, absoluteIndex + 1)} aria-label="Move down" data-tap>
-                <ArrowDown size={14} />
+              <button
+                className={styles.moveBtn}
+                onClick={() => move(absoluteIndex, absoluteIndex + 1)}
+                disabled={absoluteIndex >= state.queue.length - 1}
+                aria-label="Move down"
+                data-tap
+              >
+                <ArrowDown size={16} />
               </button>
             </div>
           </div>
