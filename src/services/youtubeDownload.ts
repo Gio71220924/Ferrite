@@ -44,3 +44,51 @@ export async function deleteAudio(videoId: string): Promise<void> {
     throw new Error(`Delete failed: HTTP ${res.status}`);
   }
 }
+
+export interface BatchProgress {
+  videoId: string;
+  status: 'ok' | 'skipped' | 'error';
+  error?: string;
+  completed: number;
+  total: number;
+  failed: number;
+  done?: boolean;
+}
+
+export async function* downloadBatch(
+  videoIds: string[],
+  signal?: AbortSignal
+): AsyncGenerator<BatchProgress> {
+  const res = await fetch(`${BACKEND}/api/youtube/download-batch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ videoIds }),
+    signal,
+  });
+
+  if (!res.ok) throw new Error(`Batch download failed: HTTP ${res.status}`);
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(line.slice(6));
+          yield data as BatchProgress;
+        } catch {
+          // skip malformed JSON
+        }
+      }
+    }
+  }
+}

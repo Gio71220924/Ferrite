@@ -1,11 +1,13 @@
-import { useRef } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { useSources } from '../state/SourcesContext';
 import { useLibrary } from '../state/LibraryContext';
 import { startLogin as startSpotifyLogin, clearStoredToken as clearSpotifyToken } from '../services/spotifyAuth';
 import { getSpotifyTracks, getSpotifyProfile, clearSpotifyLibrary } from '../services/spotifyLive';
 import { startLogin as startYoutubeLogin, clearStoredToken as clearYoutubeToken } from '../services/youtubeAuth';
 import { getYoutubeTracks, getYoutubeProfile, clearYoutubeLibrary } from '../services/youtubeLive';
+import { getDownloadStatus } from '../services/youtubeDownload';
 import { trackFromFile } from '../lib/trackFromFile';
+import { DownloadProgress } from '../components/DownloadProgress';
 import type { SourcesState, StreamingKey } from '../state/sourcesReducer';
 import styles from './Sources.module.css';
 
@@ -24,8 +26,22 @@ export function Sources() {
   const { state, dispatch } = useSources();
   const { state: library, dispatch: libDispatch } = useLibrary();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [undownloadedIds, setUndownloadedIds] = useState<string[]>([]);
 
   const anyStreamLinked = state.youtube || state.spotify;
+
+  const handleDownloadComplete = useCallback(() => {
+    setUndownloadedIds([]);
+  }, []);
+
+  const triggerDownloadCheck = async () => {
+    const youtubeTracks = getYoutubeTracks();
+    if (youtubeTracks.length === 0) return;
+    const ids = youtubeTracks.map(t => t.id);
+    const status = await getDownloadStatus(ids);
+    const pending = ids.filter(id => !status.get(id));
+    setUndownloadedIds(pending);
+  };
 
   const disconnect = (key: StreamingKey) => {
     dispatch({ type: 'DISCONNECT', key });
@@ -87,6 +103,24 @@ export function Sources() {
           </div>
         );
       })}
+
+      {state.youtube && getYoutubeTracks().length > 0 && (
+        <>
+          <div className={styles.sectionLabel}>YouTube Audio Download</div>
+          <div className={styles.prefsCard}>
+            <div className={styles.storageRow}>
+              <span className={styles.storageLabel}>Download audio from liked videos to play in-app</span>
+            </div>
+            {undownloadedIds.length > 0 ? (
+              <DownloadProgress videoIds={undownloadedIds} onComplete={handleDownloadComplete} />
+            ) : (
+              <button className={styles.manageLink} onClick={triggerDownloadCheck} data-tap>
+                Check for undownloaded tracks
+              </button>
+            )}
+          </div>
+        </>
+      )}
 
       <div className={styles.sectionLabel}>Sync preferences</div>
       <div className={styles.prefsCard}>
