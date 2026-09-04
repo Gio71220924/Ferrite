@@ -21,8 +21,8 @@ interface Ctx {
 const DuplicateSheetContext = createContext<Ctx | null>(null);
 
 export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
-  const { state: library, dispatch: libDispatch } = useLibrary();
-  const { state: sources } = useSources();
+  const { dispatch: libDispatch } = useLibrary();
+  const { state: sources, dispatch: sourcesDispatch } = useSources();
   const { dispatch: playbackDispatch } = usePlayback();
   const [pending, setPending] = useState<Pending | null>(null);
 
@@ -41,11 +41,12 @@ export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const remembered = sources.rememberDuplicates ? library.duplicateChoice[key] : undefined;
-    if (remembered) {
-      const chosen = copies.find(c => c.source === remembered) ?? track;
-      playTrack(chosen, pool);
-      return;
+    if (sources.rememberDuplicates && sources.duplicatePreference) {
+      const preferred = copies.find(c => c.source === sources.duplicatePreference);
+      if (preferred) {
+        playTrack(preferred, pool);
+        return;
+      }
     }
 
     setPending({ key, copies, pool });
@@ -57,6 +58,9 @@ export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
     if (chosen) {
       playTrack(chosen, pending.pool);
       libDispatch({ type: 'RESOLVE_DUPLICATE', key: pending.key, source });
+      if (sources.rememberDuplicates) {
+        sourcesDispatch({ type: 'SET_DUPLICATE_PREFERENCE', source });
+      }
     }
     setPending(null);
   };

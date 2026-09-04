@@ -32,6 +32,12 @@ describe('sourcesReducer', () => {
     expect(s.prefs.wifiOnly).toBe(!initialSourcesState.prefs.wifiOnly);
   });
 
+  it('SET_DUPLICATE_PREFERENCE records which source to auto-pick for future duplicates', () => {
+    expect(initialSourcesState.duplicatePreference).toBeNull();
+    const s = sourcesReducer(initialSourcesState, { type: 'SET_DUPLICATE_PREFERENCE', source: 'Apple Music' });
+    expect(s.duplicatePreference).toBe('Apple Music');
+  });
+
   it('SET_REMEMBER_DUPLICATES sets the flag explicitly', () => {
     const s = sourcesReducer(initialSourcesState, { type: 'SET_REMEMBER_DUPLICATES', value: true });
     expect(s.rememberDuplicates).toBe(true);

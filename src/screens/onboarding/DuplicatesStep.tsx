@@ -9,6 +9,7 @@ export function DuplicatesStep({ onFinish }: { onFinish: () => void }) {
 
   const finish = () => {
     dispatch({ type: 'SET_REMEMBER_DUPLICATES', value: true });
+    dispatch({ type: 'SET_DUPLICATE_PREFERENCE', source: rule });
     onFinish();
   };
 
