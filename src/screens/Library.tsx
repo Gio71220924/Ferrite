@@ -6,6 +6,7 @@ import { useOnlineStatus } from '../lib/useOnlineStatus';
 import { appleMusicConnector } from '../services/mockAppleMusic';
 import { spotifyConnector } from '../services/mockSpotify';
 import { TrackRow } from '../components/TrackRow';
+import { FerriteMark } from '../components/FerriteMark';
 import { WifiOff } from 'lucide-react';
 import styles from './Library.module.css';
 
@@ -79,7 +80,8 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
 
       {visible.length === 0 && (
         <div className={styles.empty}>
-          <div className={styles.emptyTitle}>
+          <FerriteMark size={22} color="var(--l3)" />
+          <div className={styles.emptyTitle} style={{ marginTop: 10 }}>
             {effectiveFilter === 'All' ? 'Nothing to play yet' : `No ${effectiveFilter} tracks`}
           </div>
           <div className={styles.emptyBody}>

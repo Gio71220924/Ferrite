@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useLibrary } from '../../state/LibraryContext';
+import { FerriteMark } from '../../components/FerriteMark';
 import type { Track } from '../../types/track';
 import styles from './OnboardingFlow.module.css';
 
@@ -33,7 +34,8 @@ export function ScanStep({ onNext }: { onNext: () => void }) {
 
   return (
     <div className={styles.step}>
-      <div className={styles.heading}>Reading your files</div>
+      <FerriteMark size={28} color="var(--l1)" />
+      <div className={styles.heading} style={{ marginTop: 18 }}>Reading your files</div>
       <div className={styles.sub}>Ferrite works before you connect anything.</div>
       <div style={{ marginTop: 44 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
