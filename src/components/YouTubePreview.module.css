@@ -9,8 +9,18 @@
 .title { font: 600 var(--t-body) var(--f-text); color: var(--l1); }
 .artist { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 4px; }
 .note { font: 400 var(--t-foot)/1.4 var(--f-text); color: var(--l3); margin-top: 12px; }
+.error { font: 400 var(--t-foot)/1.4 var(--f-text); color: #ff4444; margin-top: 12px; }
+.download {
+  display: block; margin: 16px 0 0; padding: 14px 0; text-align: center; border: none; cursor: pointer;
+  border-radius: var(--r-lg); background: var(--accent); font: 590 var(--t-body) var(--f-text); color: #fff; width: 100%;
+}
+.download:disabled { opacity: 0.6; cursor: not-allowed; }
+.play {
+  display: block; margin: 16px 0 0; padding: 14px 0; text-align: center; border: none; cursor: pointer;
+  border-radius: var(--r-lg); background: #1db954; font: 590 var(--t-body) var(--f-text); color: #fff; width: 100%;
+}
 .open {
-  display: block; margin: 16px 0 0; padding: 14px 0; text-align: center; text-decoration: none;
+  display: block; margin: 10px 0 0; padding: 14px 0; text-align: center; text-decoration: none;
   border-radius: var(--r-lg); background: var(--youtube); font: 590 var(--t-body) var(--f-text); color: #fff;
 }
-.cancel { margin: 10px 0 0; padding: 14px 0; text-align: center; border-radius: var(--r-lg); background: rgba(255,255,255,.08); font: 590 var(--t-body) var(--f-text); color: var(--l1); width: 100%; }
+.cancel { margin: 10px 0 0; padding: 14px 0; text-align: center; border-radius: var(--r-lg); background: rgba(255,255,255,.08); font: 590 var(--t-body) var(--f-text); color: var(--l1); width: 100%; border: none; cursor: pointer; }
