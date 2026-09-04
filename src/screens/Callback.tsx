@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleCallback } from '../services/spotifyAuth';
 import { getProfile, getSavedTracks } from '../services/spotifyApi';
@@ -9,8 +9,15 @@ export function Callback() {
   const navigate = useNavigate();
   const { dispatch } = useSources();
   const [error, setError] = useState<string | null>(null);
+  // React 18 StrictMode double-invokes effects in dev; the code/verifier
+  // exchange is one-shot (Spotify rejects a reused code, and handleCallback
+  // clears the stored state on first use), so a second run must be skipped
+  // rather than treated as a real retry.
+  const ranRef = useRef(false);
 
   useEffect(() => {
+    if (ranRef.current) return;
+    ranRef.current = true;
     const params = new URLSearchParams(window.location.search);
     if (params.get('error')) {
       setError('Spotify login was cancelled.');
