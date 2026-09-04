@@ -19,6 +19,7 @@ interface Ctx {
   cancel: () => void;
   closePreview: () => void;
   playPreview: () => void;
+  playStream: (track: Track, streamUrl: string, duration: number) => void;
 }
 
 const DuplicateSheetContext = createContext<Ctx | null>(null);
@@ -85,8 +86,15 @@ export function DuplicateSheetProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const playStream = (track: Track, streamUrl: string, duration: number) => {
+    playbackDispatch({
+      type: 'PLAY_STREAM',
+      track: { ...track, fileUrl: streamUrl, durationSec: duration || track.durationSec },
+    });
+  };
+
   return (
-    <DuplicateSheetContext.Provider value={{ pending, previewTrack, requestPlay, resolve, cancel, closePreview, playPreview }}>
+    <DuplicateSheetContext.Provider value={{ pending, previewTrack, requestPlay, resolve, cancel, closePreview, playPreview, playStream }}>
       {children}
     </DuplicateSheetContext.Provider>
   );

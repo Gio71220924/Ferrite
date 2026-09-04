@@ -76,3 +76,32 @@ export function deleteAudio(videoId: string): boolean {
   }
   return false;
 }
+
+interface StreamResult {
+  streamUrl: string;
+  duration: number;
+}
+
+export async function getAudioStreamUrl(videoId: string): Promise<StreamResult> {
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
+
+  const { stdout } = await execFileAsync('yt-dlp', [
+    '--get-url',
+    '--get-duration',
+    '--extract-audio',
+    '--audio-format', 'mp3',
+    '--no-playlist',
+    '--no-warnings',
+    url,
+  ], { timeout: 60000 });
+
+  const lines = stdout.trim().split('\n');
+  const streamUrl = lines[0];
+  const duration = lines[1] ? Math.round(parseFloat(lines[1])) : 0;
+
+  if (!streamUrl) {
+    throw new Error('Failed to get stream URL');
+  }
+
+  return { streamUrl, duration };
+}

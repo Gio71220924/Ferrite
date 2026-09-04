@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
-import { downloadAudio, deleteAudio, isDownloaded } from '../services/downloader.js';
+import { downloadAudio, deleteAudio, isDownloaded, getAudioStreamUrl } from '../services/downloader.js';
 
 export const youtubeRouter = Router();
 
@@ -117,4 +117,22 @@ youtubeRouter.post('/download-batch', async (req, res) => {
 
   res.write(`data: ${JSON.stringify({ done: true, completed, total, failed })}\n\n`);
   res.end();
+});
+
+youtubeRouter.get('/stream/:videoId', async (req, res) => {
+  const { videoId } = req.params;
+
+  if (!/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+    res.status(400).json({ error: 'Invalid videoId format' });
+    return;
+  }
+
+  try {
+    const result = await getAudioStreamUrl(videoId);
+    res.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Failed to get stream URL';
+    console.error(`Stream URL failed for ${videoId}:`, message);
+    res.status(500).json({ error: message });
+  }
 });

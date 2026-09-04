@@ -1,3 +1,13 @@
+export interface StreamingTrack {
+  id: string;
+  title: string;
+  artist: string;
+  source: string;
+  durationSec: number;
+  fileUrl: string;
+  artworkUrl?: string;
+}
+
 export interface PlaybackState {
   queue: string[];
   currentIndex: number;
@@ -5,6 +15,7 @@ export interface PlaybackState {
   positionSec: number;
   volume: number;
   error: string | null;
+  streamingTrack: StreamingTrack | null;
 }
 
 export const initialPlaybackState: PlaybackState = {
@@ -14,10 +25,12 @@ export const initialPlaybackState: PlaybackState = {
   positionSec: 0,
   volume: 0.7,
   error: null,
+  streamingTrack: null,
 };
 
 export type PlaybackAction =
   | { type: 'PLAY_TRACK'; trackIds: string[]; index: number }
+  | { type: 'PLAY_STREAM'; track: { id: string; title: string; artist: string; source: string; durationSec: number; fileUrl: string; artworkUrl?: string } }
   | { type: 'ENQUEUE'; trackId: string }
   | { type: 'REORDER'; from: number; to: number }
   | { type: 'CLEAR_UPCOMING' }
@@ -32,7 +45,9 @@ export type PlaybackAction =
 export function playbackReducer(state: PlaybackState, action: PlaybackAction): PlaybackState {
   switch (action.type) {
     case 'PLAY_TRACK':
-      return { ...state, queue: action.trackIds, currentIndex: action.index, playing: true, positionSec: 0, error: null };
+      return { ...state, queue: action.trackIds, currentIndex: action.index, playing: true, positionSec: 0, error: null, streamingTrack: null };
+    case 'PLAY_STREAM':
+      return { ...state, queue: [action.track.id], currentIndex: 0, playing: true, positionSec: 0, error: null, streamingTrack: action.track };
     case 'ENQUEUE':
       return { ...state, queue: [...state.queue, action.trackId] };
     case 'REORDER': {

@@ -86,7 +86,7 @@ function AudioBridge() {
   const spotifyConnectingRef = useRef<Promise<void> | null>(null);
   const lastSpotifyTrackId = useRef<string | null>(null);
   const currentId = state.queue[state.currentIndex];
-  const track = currentId ? getTrack(currentId) : undefined;
+  const track = state.streamingTrack ?? (currentId ? getTrack(currentId) : undefined);
   const isSpotify = track?.source === 'Spotify';
 
   useEffect(() => {

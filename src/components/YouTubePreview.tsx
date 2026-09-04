@@ -2,13 +2,14 @@ import { useState } from 'react';
 import type { Track } from '../types/track';
 import { useDuplicateSheet } from '../state/DuplicateSheetContext';
 import { useSources } from '../state/SourcesContext';
-import { downloadAudio } from '../services/youtubeDownload';
+import { downloadAudio, getAudioStreamUrl } from '../services/youtubeDownload';
 import styles from './YouTubePreview.module.css';
 
 export function YouTubePreview({ track, onClose }: { track: Track | null; onClose: () => void }) {
-  const { playPreview } = useDuplicateSheet();
+  const { playPreview, playStream } = useDuplicateSheet();
   const { dispatch: sourcesDispatch } = useSources();
   const [downloading, setDownloading] = useState(false);
+  const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!track) return null;
@@ -29,6 +30,20 @@ export function YouTubePreview({ track, onClose }: { track: Track | null; onClos
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
       setDownloading(false);
+    }
+  };
+
+  const handleStream = async () => {
+    setStreaming(true);
+    setError(null);
+    try {
+      const result = await getAudioStreamUrl(track.id);
+      playStream(track, result.streamUrl, result.duration);
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Stream failed');
+    } finally {
+      setStreaming(false);
     }
   };
 
@@ -56,14 +71,24 @@ export function YouTubePreview({ track, onClose }: { track: Track | null; onClos
             Play Audio
           </button>
         ) : (
-          <button
-            className={styles.download}
-            onClick={handleDownload}
-            disabled={downloading}
-            data-tap
-          >
-            {downloading ? 'Downloading...' : 'Download as Audio'}
-          </button>
+          <>
+            <button
+              className={styles.stream}
+              onClick={handleStream}
+              disabled={streaming}
+              data-tap
+            >
+              {streaming ? 'Loading...' : 'Play Audio'}
+            </button>
+            <button
+              className={styles.download}
+              onClick={handleDownload}
+              disabled={downloading}
+              data-tap
+            >
+              {downloading ? 'Downloading...' : 'Download as Audio'}
+            </button>
+          </>
         )}
 
         <a

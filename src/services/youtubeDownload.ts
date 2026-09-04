@@ -45,6 +45,20 @@ export async function deleteAudio(videoId: string): Promise<void> {
   }
 }
 
+interface StreamResult {
+  streamUrl: string;
+  duration: number;
+}
+
+export async function getAudioStreamUrl(videoId: string): Promise<StreamResult> {
+  const res = await fetch(`${BACKEND}/api/youtube/stream/${videoId}`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to get stream URL' }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
 export interface BatchProgress {
   videoId: string;
   status: 'ok' | 'skipped' | 'error';
