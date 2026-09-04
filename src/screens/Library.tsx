@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { useOnlineStatus } from '../lib/useOnlineStatus';
 import { appleMusicConnector } from '../services/mockAppleMusic';
 import { spotifyConnector } from '../services/mockSpotify';
+import { albums } from '../data/mockLibrary';
 import { TrackRow } from '../components/TrackRow';
 import { FerriteMark } from '../components/FerriteMark';
 import { WifiOff } from 'lucide-react';
@@ -56,6 +58,17 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
           </div>
         </div>
       )}
+
+      <div className={styles.railLabel}>Recently played</div>
+      <div className={styles.rail}>
+        {albums.map(a => (
+          <Link key={a.id} className={styles.railCard} to={`/album/${a.id}`}>
+            <div className={styles.railArt} />
+            <div className={styles.railTitle}>{a.title}</div>
+            <div className={styles.railSub}>{a.artist}</div>
+          </Link>
+        ))}
+      </div>
 
       <div className={styles.segment}>
         {ALL_SOURCES.map(s => {

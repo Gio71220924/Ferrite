@@ -1,17 +1,21 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, afterEach } from 'vitest';
+import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { Library } from './Library';
 import { SourcesProvider, useSources } from '../state/SourcesContext';
 import { LibraryProvider, useLibrary } from '../state/LibraryContext';
+import { albums } from '../data/mockLibrary';
 
 function renderLibrary() {
   return render(
-    <SourcesProvider>
-      <LibraryProvider>
-        <Library onPlay={() => {}} />
-      </LibraryProvider>
-    </SourcesProvider>,
+    <MemoryRouter>
+      <SourcesProvider>
+        <LibraryProvider>
+          <Library onPlay={() => {}} />
+        </LibraryProvider>
+      </SourcesProvider>
+    </MemoryRouter>,
   );
 }
 
@@ -47,11 +51,13 @@ describe('Library', () => {
 
   it('dims streaming tracks instead of hiding them when offline', async () => {
     render(
-      <SourcesProvider>
-        <LibraryProvider>
-          <Seeded />
-        </LibraryProvider>
-      </SourcesProvider>,
+      <MemoryRouter>
+        <SourcesProvider>
+          <LibraryProvider>
+            <Seeded />
+          </LibraryProvider>
+        </SourcesProvider>
+      </MemoryRouter>,
     );
     await userEvent.click(screen.getByText('seed'));
     expect(screen.getByText('Slow Static')).toBeInTheDocument();
@@ -60,6 +66,23 @@ describe('Library', () => {
 
     expect(screen.getAllByText('Midnight Ferry').length).toBeGreaterThan(0);
     expect(screen.getByText('Slow Static')).toBeInTheDocument();
+  });
+
+  it('the recently-played rail links each album card to its album route', async () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <SourcesProvider>
+          <LibraryProvider>
+            <Routes>
+              <Route path="/" element={<Library onPlay={() => {}} />} />
+              <Route path="/album/:id" element={<div>Album screen</div>} />
+            </Routes>
+          </LibraryProvider>
+        </SourcesProvider>
+      </MemoryRouter>,
+    );
+    await userEvent.click(screen.getByText(albums[0].title));
+    expect(screen.getByText('Album screen')).toBeInTheDocument();
   });
 
   it('shows the empty state when the Local filter has no tracks', async () => {
