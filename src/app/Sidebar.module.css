@@ -1,0 +1,39 @@
+.sidebar {
+  width: 240px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 28px 16px;
+  border-right: 1px solid var(--card-line);
+  background: rgba(255, 255, 255, 0.02);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px 28px;
+}
+.brandText {
+  font: 600 20px/1 var(--f-round);
+  letter-spacing: -0.02em;
+  color: var(--l1);
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: var(--r-md);
+  color: var(--l2);
+  font: 500 var(--t-body) var(--f-text);
+  text-decoration: none;
+}
+.linkActive {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--l1);
+}

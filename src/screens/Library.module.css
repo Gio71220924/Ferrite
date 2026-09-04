@@ -12,6 +12,9 @@
 .offlineBanner { margin: 0 18px 18px; display: flex; align-items: center; gap: 11px; padding: 13px 15px; border-radius: var(--r-lg); background: rgba(255,255,255,.05); border: 1px solid var(--card-line); }
 .railLabel { font: 400 var(--t-foot) var(--f-text); color: var(--l2); padding: 0 22px 11px; }
 .rail { display: flex; gap: 13px; padding: 0 22px 26px; overflow: auto; }
+@media (min-width: 1024px) {
+  .rail { flex-wrap: wrap; overflow: visible; }
+}
 .railCard { flex: none; width: 132px; text-decoration: none; }
 .railArt { width: 132px; height: 132px; border-radius: 14px; border: 1px solid var(--card-line); background: var(--art); }
 .railTitle { font: 590 var(--t-sub)/1.2 var(--f-text); color: var(--l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 11px 0 3px; }
