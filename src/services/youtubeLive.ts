@@ -5,12 +5,25 @@ interface YouTubeLiveProfile {
   channelTitle: string;
 }
 
-let cachedTracks: Track[] = [];
-let cachedProfile: YouTubeLiveProfile | null = null;
+const CACHE_KEY = 'ferrite:youtube:library';
+
+function loadCache(): { tracks: Track[]; profile: YouTubeLiveProfile } | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+const cached = loadCache();
+let cachedTracks: Track[] = cached?.tracks ?? [];
+let cachedProfile: YouTubeLiveProfile | null = cached?.profile ?? null;
 
 export function setYoutubeLibrary(tracks: Track[], profile: YouTubeLiveProfile) {
   cachedTracks = tracks;
   cachedProfile = profile;
+  localStorage.setItem(CACHE_KEY, JSON.stringify({ tracks, profile }));
 }
 
 export function getYoutubeTracks(): Track[] {
@@ -24,6 +37,7 @@ export function getYoutubeProfile(): YouTubeLiveProfile | null {
 export function clearYoutubeLibrary() {
   cachedTracks = [];
   cachedProfile = null;
+  localStorage.removeItem(CACHE_KEY);
 }
 
 /** Fetches the profile + liked videos and populates the cache. Shared by

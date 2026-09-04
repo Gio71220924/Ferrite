@@ -188,11 +188,19 @@ function Gated() {
   const getTrack = useTrackLookup();
   const { dispatch: sourcesDispatch } = useSources();
 
-  // A page reload wipes the in-memory "connected" flag and track cache,
-  // but the Spotify token itself lives in localStorage — reconnect
-  // silently on boot instead of showing Spotify as unlinked.
+  // A page reload wipes the in-memory "connected" flag, but the token and
+  // the last-fetched track/profile cache both survive in localStorage
+  // (spotifyLive.ts). If a cache is already there, connect instantly and
+  // refresh it silently in the background instead of showing "Connecting…"
+  // and blocking on the network every single reload.
   useEffect(() => {
     if (!getStoredToken()) return;
+    if (getSpotifyTracks().length > 0) {
+      sourcesDispatch({ type: 'CONNECT_START', key: 'spotify' });
+      sourcesDispatch({ type: 'CONNECT_DONE', key: 'spotify' });
+      void refreshSpotifyLibrary().catch(() => {});
+      return;
+    }
     sourcesDispatch({ type: 'CONNECT_START', key: 'spotify' });
     (async () => {
       try {
@@ -208,6 +216,12 @@ function Gated() {
   // Same rehydrate as Spotify, for the YouTube OAuth token.
   useEffect(() => {
     if (!getStoredYoutubeToken()) return;
+    if (getYoutubeTracks().length > 0) {
+      sourcesDispatch({ type: 'CONNECT_START', key: 'youtube' });
+      sourcesDispatch({ type: 'CONNECT_DONE', key: 'youtube' });
+      void refreshYoutubeLibrary().catch(() => {});
+      return;
+    }
     sourcesDispatch({ type: 'CONNECT_START', key: 'youtube' });
     (async () => {
       try {
