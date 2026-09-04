@@ -1,24 +1,8 @@
 import { useRef, useState } from 'react';
 import { useLibrary } from '../../state/LibraryContext';
 import { FerriteMark } from '../../components/FerriteMark';
-import type { Track } from '../../types/track';
+import { trackFromFile } from '../../lib/trackFromFile';
 import styles from './OnboardingFlow.module.css';
-
-function trackFromFile(file: File): Track {
-  // ponytail: filename-based tagging only ("Artist - Title.ext"); real ID3
-  // parsing (e.g. music-metadata-browser) is the upgrade if users need it.
-  const base = file.name.replace(/\.[^.]+$/, '');
-  const parts = base.split(' - ');
-  const [artist, title] = parts.length >= 2 ? [parts[0], parts.slice(1).join(' - ')] : ['Unknown Artist', base];
-  return {
-    id: crypto.randomUUID(),
-    title,
-    artist,
-    source: 'Local',
-    durationSec: 0,
-    fileUrl: URL.createObjectURL(file),
-  };
-}
 
 export function ScanStep({ onNext }: { onNext: () => void }) {
   const { state, dispatch } = useLibrary();

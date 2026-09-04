@@ -8,3 +8,21 @@
 .btn { padding: 8px 16px; border-radius: 15px; font: 590 var(--t-sub) var(--f-text); }
 .spinner { width: 11px; height: 11px; border-radius: 6px; border: 1.5px solid var(--l3); border-top-color: transparent; animation: spin .8s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+.syncedRow { display: flex; justify-content: space-between; padding: 13px 0 0; margin-top: 16px; border-top: 1px solid var(--sep); }
+.syncedLabel { font: 400 var(--t-foot) var(--f-text); color: var(--l2); }
+.syncedValue { font: 400 var(--t-foot) var(--f-text); color: var(--l1); }
+.sectionLabel { font: 400 var(--t-foot) var(--f-text); color: var(--l2); padding: 18px 26px 9px; }
+.prefsCard { margin: 0 18px; padding: 4px 18px; border-radius: var(--r-lg); background: var(--card); border: 1px solid var(--card-line); }
+.prefRow { display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 14px 0; border-bottom: 1px solid var(--sep); }
+.prefRow:last-child { border-bottom: none; }
+.prefLabel { font: 400 var(--t-body) var(--f-text); color: var(--l1); }
+.prefHint { font: 400 var(--t-foot)/1.35 var(--f-text); color: var(--l2); margin-top: 3px; }
+.toggle { width: 51px; height: 31px; border-radius: 16px; flex: none; padding: 2px; display: flex; transition: background .2s var(--ease-out); }
+.toggleOn { background: var(--on); justify-content: flex-end; }
+.toggleOff { background: rgba(120,120,128,.32); justify-content: flex-start; }
+.toggleKnob { width: 27px; height: 27px; border-radius: 14px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.storageRow { display: flex; align-items: center; min-height: 44px; padding: 12px 0; border-bottom: 1px solid var(--sep); }
+.storageRow:last-child { border-bottom: none; }
+.storageLabel { flex: 1; font: 400 var(--t-body) var(--f-text); color: var(--l1); }
+.storageValue { font: 400 var(--t-body) var(--f-text); color: var(--l2); }
+.manageLink { flex: 1; font: 400 var(--t-body) var(--f-text); color: var(--tint); text-align: left; cursor: pointer; }

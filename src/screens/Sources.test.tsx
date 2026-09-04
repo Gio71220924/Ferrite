@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Sources } from './Sources';
 import { SourcesProvider } from '../state/SourcesContext';
+import { LibraryProvider } from '../state/LibraryContext';
 
 describe('Sources', () => {
   beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
@@ -12,7 +13,9 @@ describe('Sources', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(
       <SourcesProvider>
-        <Sources />
+        <LibraryProvider>
+          <Sources />
+        </LibraryProvider>
       </SourcesProvider>,
     );
 
@@ -23,13 +26,40 @@ describe('Sources', () => {
       await vi.advanceTimersByTimeAsync(1600);
     });
     expect(screen.getByText('812 songs · 24 playlists')).toBeInTheDocument();
+    expect(screen.getAllByText('Just now')).toHaveLength(1);
+  });
+
+  it('a stream-dependent preference stays disabled until a source is connected, then toggles', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(
+      <SourcesProvider>
+        <LibraryProvider>
+          <Sources />
+        </LibraryProvider>
+      </SourcesProvider>,
+    );
+
+    const wifiToggle = screen.getByRole('button', { name: 'Sync over Wi-Fi only' });
+    expect(wifiToggle).toBeDisabled();
+
+    await user.click(screen.getAllByRole('button', { name: 'Connect' })[0]);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1600);
+    });
+
+    expect(wifiToggle).not.toBeDisabled();
+    expect(wifiToggle).toHaveAttribute('aria-pressed', 'true');
+    await user.click(wifiToggle);
+    expect(wifiToggle).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('cancels an in-progress connect instead of starting a second one', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(
       <SourcesProvider>
-        <Sources />
+        <LibraryProvider>
+          <Sources />
+        </LibraryProvider>
       </SourcesProvider>,
     );
 
