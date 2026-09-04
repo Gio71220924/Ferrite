@@ -22,7 +22,11 @@ export function NowPlaying({ track, onClose }: { track: Track; onClose: () => vo
         <ChevronDown size={16} />
       </button>
 
-      <div className={styles.art} />
+      {track.artworkUrl ? (
+        <img className={styles.art} src={track.artworkUrl} alt="" />
+      ) : (
+        <div className={styles.art} />
+      )}
 
       <div className={styles.badge}>
         <div className={styles.badgeDot} style={{ background: SOURCE_COLOR[track.source] }} />

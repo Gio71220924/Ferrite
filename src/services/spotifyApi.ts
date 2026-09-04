@@ -35,6 +35,7 @@ interface SpotifySavedTrackItem {
     name: string;
     duration_ms: number;
     artists: { name: string }[];
+    album: { images: { url: string; width: number; height: number }[] };
   };
 }
 
@@ -44,12 +45,17 @@ interface SpotifySavedTracksPage {
 }
 
 function toTrack(item: SpotifySavedTrackItem): Track {
+  const images = item.track.album.images;
+  // Spotify returns images largest-first (typically 640/300/64px) — a
+  // track row thumbnail doesn't need the full-size one.
+  const artworkUrl = images[1]?.url ?? images[0]?.url;
   return {
     id: item.track.id,
     title: item.track.name,
     artist: item.track.artists.map(a => a.name).join(', '),
     source: 'Spotify',
     durationSec: Math.round(item.track.duration_ms / 1000),
+    artworkUrl,
   };
 }
 

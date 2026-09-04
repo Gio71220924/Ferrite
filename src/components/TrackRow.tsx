@@ -7,7 +7,11 @@ export function TrackRow({ track, onClick, sub, offline }: { track: Track; onCli
   const unavailable = offline && track.source !== 'Local';
   return (
     <button className={styles.row} onClick={onClick} data-tap style={unavailable ? { opacity: 0.4 } : undefined}>
-      <div className={styles.art} />
+      {track.artworkUrl ? (
+        <img className={styles.art} src={track.artworkUrl} alt="" />
+      ) : (
+        <div className={styles.art} />
+      )}
       <div className={styles.body}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className={styles.title}>{track.title}</div>

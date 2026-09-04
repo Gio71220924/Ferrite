@@ -11,7 +11,7 @@
 @media (min-width: 1024px) {
   .bar { left: 258px; bottom: 18px; }
 }
-.art { width: 40px; height: 40px; border-radius: var(--r-sm); flex: none; border: 1px solid var(--card-line); background: var(--art); }
+.art { width: 40px; height: 40px; border-radius: var(--r-sm); flex: none; border: 1px solid var(--card-line); background: var(--art); object-fit: cover; }
 .info { flex: 1; min-width: 0; }
 .title { font: 400 var(--t-sub) var(--f-text); color: var(--l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sub { font: 400 var(--t-foot) var(--f-text); color: var(--l2); margin-top: 2px; }

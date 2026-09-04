@@ -23,12 +23,18 @@ describe('spotifyApi', () => {
   });
 
   it('getSavedTracks maps track items and follows pagination until next is null', async () => {
-    const track = (id: string, name: string) => ({
-      track: { id, name, duration_ms: 200_000, artists: [{ name: 'Rosalind Ver' }] },
+    const track = (id: string, name: string, images: { url: string; width: number; height: number }[] = []) => ({
+      track: { id, name, duration_ms: 200_000, artists: [{ name: 'Rosalind Ver' }], album: { images } },
     });
 
     vi.mocked(fetch)
-      .mockResolvedValueOnce(jsonResponse({ items: [track('t1', 'Midnight Ferry')], next: 'https://api.spotify.com/v1/me/tracks?offset=50' }))
+      .mockResolvedValueOnce(jsonResponse({
+        items: [track('t1', 'Midnight Ferry', [
+          { url: 'https://img/640.jpg', width: 640, height: 640 },
+          { url: 'https://img/300.jpg', width: 300, height: 300 },
+        ])],
+        next: 'https://api.spotify.com/v1/me/tracks?offset=50',
+      }))
       .mockResolvedValueOnce(jsonResponse({ items: [track('t2', 'Slow Static')], next: null }));
 
     const tracks = await getSavedTracks();
@@ -40,7 +46,9 @@ describe('spotifyApi', () => {
       artist: 'Rosalind Ver',
       source: 'Spotify',
       durationSec: 200,
+      artworkUrl: 'https://img/300.jpg',
     });
+    expect(tracks[1].artworkUrl).toBeUndefined();
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 

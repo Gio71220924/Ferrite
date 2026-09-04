@@ -7,7 +7,13 @@ export function MiniPlayer({ track, onOpen }: { track: Track; onOpen?: () => voi
   const { state, dispatch } = usePlayback();
   return (
     <div className={styles.bar}>
-      <button className={styles.art} onClick={onOpen} aria-label="Open now playing" data-tap />
+      <button
+        className={styles.art}
+        onClick={onOpen}
+        aria-label="Open now playing"
+        data-tap
+        style={track.artworkUrl ? { backgroundImage: `url(${track.artworkUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      />
       <div className={styles.info} onClick={onOpen}>
         <div className={styles.title}>{track.title}</div>
         <div className={styles.sub}>{track.artist} · {track.source}</div>

@@ -9,6 +9,7 @@ export interface Track {
   format?: string;
   albumId?: string;
   fileUrl?: string;
+  artworkUrl?: string;
 }
 
 export interface Album {
