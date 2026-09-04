@@ -24,7 +24,7 @@ mocked async functions (§5).
 ```
 src/
   main.tsx                 # ReactDOM root, mounts <App/>
-  App.tsx                  # Providers + Router + onboarding gate
+  App.tsx                  # Providers + Router + onboarding gate + AudioBridge
   styles/
     tokens.css              # ported :root vars from Ferrite.dc.html
     reset.css
@@ -33,9 +33,10 @@ src/
   data/
     mockLibrary.ts           # ported TRACKS/SEARCH/albums mock data
   state/
-    LibraryContext.tsx       # tracks, filter, duplicates, queue
-    PlaybackContext.tsx      # now-playing, position, volume
-    SourcesContext.tsx       # apple/spotify linked state, sync prefs
+    LibraryContext.tsx / libraryReducer.ts       # localTracks, filter, duplicateChoice
+    PlaybackContext.tsx / playbackReducer.ts     # queue, currentIndex, playing, positionSec, volume
+    SourcesContext.tsx / sourcesReducer.ts       # apple/spotify linked state, sync prefs, duplicatePreference
+    DuplicateSheetContext.tsx                    # overlay context combining the three above
   audio/
     AudioEngine.ts           # wraps HTMLAudioElement, queue advance
   services/
@@ -44,9 +45,10 @@ src/
     mockSpotify.ts
   lib/
     duplicates.ts            # findDuplicates(), resolution helpers
+    format.ts                # formatDuration()
+    useOnlineStatus.ts        # navigator.onLine + online/offline listeners
   app/
-    AppShell.tsx             # bottom tab bar + outlet + mini player
-    MiniPlayer.tsx
+    AppShell.tsx             # bottom tab bar + outlet + mini player + duplicate sheet
     BottomTabBar.tsx
   screens/
     Library.tsx
@@ -64,6 +66,7 @@ src/
     DuplicateSheet.tsx
     FerriteMark.tsx            # icon/wordmark, from PRD §6.8
     TrackRow.tsx
+    MiniPlayer.tsx
 ```
 
 Offline (PRD §6.7) is not a separate route — it's a rendering mode of
@@ -110,17 +113,36 @@ Three contexts, each `{ state, dispatch }` via `useReducer`, no
 cross-context reads inside reducers (a component that needs both reads both
 hooks).
 
-- **`SourcesContext`** — `{ apple: boolean; spotify: boolean; syncing: 'apple' | 'spotify' | null; prefs: { wifiOnly, preferLocal, cacheOffline }; rememberDuplicates: boolean }`.
-  Actions: `CONNECT_START`, `CONNECT_DONE`, `DISCONNECT`, `SET_PREF`,
+- **`SourcesContext`** — `{ apple: boolean; spotify: boolean; syncing: 'apple' | 'spotify' | null; prefs: { wifiOnly, preferLocal, cacheOffline }; rememberDuplicates: boolean; duplicatePreference: Source | null }`.
+  Actions: `CONNECT_START`, `CONNECT_DONE` (no-ops if `syncing` no longer
+  matches the key — guards a stale resolve after `DISCONNECT`), `DISCONNECT`,
+  `SET_PREF` (generic toggle for the `prefs` sub-object), `SET_DUPLICATE_PREFERENCE`
+  (explicit set, not a toggle — records which source to auto-pick for every
+  future duplicate once `rememberDuplicates` is on; `null` until the user
+  resolves a sheet or finishes onboarding's `DuplicatesStep`),
   `SET_REMEMBER_DUPLICATES`.
-- **`LibraryContext`** — `{ tracks: Track[]; albums: Album[]; filter: Source | 'All'; duplicateChoice: Record<string, Source> }`.
-  Actions: `IMPORT_LOCAL_FILES`, `SET_FILTER`, `RESOLVE_DUPLICATE`.
-  Derives `linkedSources()` from `SourcesContext` at the call site (passed
-  in), not duplicated into this reducer's state.
-- **`PlaybackContext`** — `{ queue: QueueItem[]; currentIndex: number; playing: boolean; positionSec: number; volume: number }`.
-  Actions: `PLAY_TRACK` (replaces queue from a track list + index),
+- **`LibraryContext`** — `{ localTracks: Track[]; filter: Source | 'All'; duplicateChoice: Record<string, Source> }`.
+  Actions: `IMPORT_LOCAL_FILES`, `SET_FILTER`, `RESOLVE_DUPLICATE` (kept as a
+  per-track record for history/debugging; duplicate *auto*-resolution reads
+  `SourcesContext.duplicatePreference` instead, not this map — see §7).
+  Album data lives in `data/mockLibrary.ts`, not in this context. Derives
+  `linkedSources()` from `SourcesContext` at the call site (passed in), not
+  duplicated into this reducer's state.
+- **`PlaybackContext`** — `{ queue: string[]; currentIndex: number; playing: boolean; positionSec: number; volume: number }`
+  (`queue` holds track ids, resolved back to `Track` objects via `App.tsx`'s
+  `useTrackLookup()`).
+  Actions: `PLAY_TRACK` (replaces queue from a track-id list + index),
   `ENQUEUE`, `REORDER`, `CLEAR_UPCOMING`, `TOGGLE_PLAY`, `SEEK`, `NEXT`,
   `PREV`, `TICK` (position update from the audio engine).
+- **`DuplicateSheetContext`** — not a reducer; a thin overlay (`useState`)
+  that reads all three contexts above and owns `pending: {key, copies, pool} | null`.
+  `requestPlay(track, pool)` checks `findDuplicates` (§7); if a group exists
+  and `rememberDuplicates && duplicatePreference` can resolve it, plays
+  directly, otherwise opens the sheet. `resolve(source)` plays the chosen
+  copy and, when `rememberDuplicates` is on, calls
+  `SET_DUPLICATE_PREFERENCE` so every subsequent duplicate (any title) uses
+  that same source without re-prompting (PRD §6.5/§10 source-priority
+  remember).
 
 `AudioEngine` (§6) is not a context — it is a singleton class instantiated
 once in `App.tsx` and driven by a `useEffect` that mirrors
@@ -171,10 +193,12 @@ export class AudioEngine {
 
 Local tracks: `fileUrl` is a real `URL.createObjectURL(file)`, so `load()`
 plays real audio. Apple Music/Spotify (mocked) tracks have no `fileUrl`;
-`AudioEngine.load()` is skipped for those and `PlaybackContext` still
-advances `positionSec` on a `setInterval` fallback so the scrubber moves —
-documented in code as the phase-1 approximation (PRD §6.2: "visually
-indistinguishable to the user").
+`AudioEngine.load()` is skipped for those. The `setInterval` position-tick
+fallback described in the original plan (so the scrubber still moves for a
+mocked track, per PRD §6.2's "visually indistinguishable to the user") is
+**not yet implemented** — the scrubber currently stays at 0:00 for
+streaming tracks. Tracked as a parked follow-up, not done in Phase 1's
+first pass.
 
 ## 7. Duplicate detection
 
@@ -197,9 +221,11 @@ export function findDuplicates(tracks: Track[]): Map<string, Track[]> {
 
 Called against the currently-linked tracks (Local + any connected
 streaming source's mock catalog) whenever a track is about to play. If the
-tapped track's key resolves to a group of 2+ **and** no remembered
-resolution exists, `LibraryContext` dispatches nothing yet — the screen
-opens `DuplicateSheet` instead of calling `PLAY_TRACK` directly.
+tapped track's key resolves to a group of 2+, `DuplicateSheetContext`
+first checks whether `rememberDuplicates` is on and `duplicatePreference`
+already names one of the copies' sources — if so it plays that copy
+directly. Otherwise it opens `DuplicateSheet` instead of dispatching
+`PLAY_TRACK`.
 
 ## 8. Testing strategy
 
