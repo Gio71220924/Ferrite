@@ -5,7 +5,7 @@ import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { useOnlineStatus } from '../lib/useOnlineStatus';
 import { appleMusicConnector } from '../services/mockAppleMusic';
-import { spotifyConnector } from '../services/mockSpotify';
+import { getSpotifyTracks } from '../services/spotifyLive';
 import { albums } from '../data/mockLibrary';
 import { TrackRow } from '../components/TrackRow';
 import { FerriteMark } from '../components/FerriteMark';
@@ -24,7 +24,7 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
   const pool: Track[] = useMemo(() => {
     const streaming = [
       ...(sources.apple ? appleMusicConnector.catalog() : []),
-      ...(sources.spotify ? spotifyConnector.catalog() : []),
+      ...(sources.spotify ? getSpotifyTracks() : []),
     ];
     return [...library.localTracks, ...streaming];
   }, [library.localTracks, sources.apple, sources.spotify]);

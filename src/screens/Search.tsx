@@ -4,7 +4,7 @@ import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { appleMusicConnector } from '../services/mockAppleMusic';
-import { spotifyConnector } from '../services/mockSpotify';
+import { getSpotifyTracks } from '../services/spotifyLive';
 import { TrackRow } from '../components/TrackRow';
 import styles from './Search.module.css';
 
@@ -21,7 +21,7 @@ export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => vo
   const bySource: Record<Source, Track[]> = {
     Local: library.localTracks,
     'Apple Music': sources.apple ? appleMusicConnector.catalog() : [],
-    Spotify: sources.spotify ? spotifyConnector.catalog() : [],
+    Spotify: sources.spotify ? getSpotifyTracks() : [],
   };
 
   const allSources: Source[] = ['Local', 'Apple Music', 'Spotify'];

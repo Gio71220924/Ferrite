@@ -2,15 +2,16 @@ import { useRef, useState } from 'react';
 import { useSources } from '../state/SourcesContext';
 import { useLibrary } from '../state/LibraryContext';
 import { appleMusicConnector } from '../services/mockAppleMusic';
-import { spotifyConnector } from '../services/mockSpotify';
+import { startLogin, clearStoredToken } from '../services/spotifyAuth';
+import { getSpotifyTracks, getSpotifyProfile, clearSpotifyLibrary } from '../services/spotifyLive';
 import { trackFromFile } from '../lib/trackFromFile';
 import type { SourceConnector } from '../services/sourceConnector';
 import type { SourcesState, StreamingKey } from '../state/sourcesReducer';
 import styles from './Sources.module.css';
 
-const SERVICES: { key: StreamingKey; name: string; color: string; connector: SourceConnector }[] = [
+const SERVICES: { key: StreamingKey; name: string; color: string; connector: SourceConnector | null }[] = [
   { key: 'apple', name: 'Apple Music', color: 'var(--apple)', connector: appleMusicConnector },
-  { key: 'spotify', name: 'Spotify', color: 'var(--spotify)', connector: spotifyConnector },
+  { key: 'spotify', name: 'Spotify', color: 'var(--spotify)', connector: null },
 ];
 
 const PREF_ROWS: { key: keyof SourcesState['prefs']; label: string; hint: string; needsStream: boolean }[] = [
@@ -34,6 +35,12 @@ export function Sources() {
     setLastSynced(s => ({ ...s, [key]: 'Just now' }));
   };
 
+  const disconnectSpotify = () => {
+    dispatch({ type: 'DISCONNECT', key: 'spotify' });
+    clearStoredToken();
+    clearSpotifyLibrary();
+  };
+
   const onManageFiles = (files: FileList) => {
     libDispatch({ type: 'IMPORT_LOCAL_FILES', tracks: Array.from(files).map(trackFromFile) });
   };
@@ -44,6 +51,23 @@ export function Sources() {
       {SERVICES.map(({ key, name, color, connector }) => {
         const on = state[key];
         const busy = state.syncing === key;
+        const spotifyProfile = key === 'spotify' ? getSpotifyProfile() : null;
+        const statusText = busy
+          ? 'Importing library…'
+          : on
+            ? key === 'apple'
+              ? '812 songs · 24 playlists'
+              : `${getSpotifyTracks().length.toLocaleString()} songs${spotifyProfile ? ` · ${spotifyProfile.displayName}` : ''}`
+            : 'Not connected';
+        const onClick = () => {
+          if (key === 'spotify') {
+            if (busy || on) disconnectSpotify();
+            else void startLogin();
+            return;
+          }
+          if (busy || on) dispatch({ type: 'DISCONNECT', key });
+          else if (connector) void connect(key, connector);
+        };
         return (
           <div className={styles.card} key={key}>
             <div className={styles.row}>
@@ -52,14 +76,10 @@ export function Sources() {
                 <div className={styles.name}>{name}</div>
                 <div className={styles.status}>
                   {busy && <span className={styles.spinner} />}{' '}
-                  {busy ? 'Importing library…' : on ? (key === 'apple' ? '812 songs · 24 playlists' : '1,140 songs · 31 playlists') : 'Not connected'}
+                  {statusText}
                 </div>
               </div>
-              <button
-                className={styles.btn}
-                onClick={() => (busy || on ? dispatch({ type: 'DISCONNECT', key }) : connect(key, connector))}
-                data-tap
-              >
+              <button className={styles.btn} onClick={onClick} data-tap>
                 {busy ? 'Cancel' : on ? 'Unlink' : 'Connect'}
               </button>
             </div>

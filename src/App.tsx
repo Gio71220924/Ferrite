@@ -11,9 +11,13 @@ import { Sources } from './screens/Sources';
 import { Search } from './screens/Search';
 import { Queue } from './screens/Queue';
 import { Album } from './screens/Album';
+import { Callback } from './screens/Callback';
 import { OnboardingFlow } from './screens/onboarding/OnboardingFlow';
-import { albums, albumTracks, appleMusicCatalog, spotifyCatalog } from './data/mockLibrary';
+import { albums, albumTracks, appleMusicCatalog } from './data/mockLibrary';
 import { AudioEngine } from './audio/AudioEngine';
+import { SpotifyPlayer } from './audio/SpotifyPlayer';
+import { getValidAccessToken } from './services/spotifyAuth';
+import { getSpotifyTracks } from './services/spotifyLive';
 import type { Track } from './types/track';
 
 function useTrackLookup() {
@@ -23,7 +27,7 @@ function useTrackLookup() {
     const all: Track[] = [
       ...library.localTracks,
       ...(sources.apple ? appleMusicCatalog : []),
-      ...(sources.spotify ? spotifyCatalog : []),
+      ...(sources.spotify ? getSpotifyTracks() : []),
       ...Object.values(albumTracks),
     ];
     const byId = new Map(all.map(t => [t.id, t]));
@@ -69,13 +73,19 @@ function AudioBridge() {
   const getTrack = useTrackLookup();
   const engineRef = useRef<AudioEngine>();
   if (!engineRef.current) engineRef.current = new AudioEngine();
+  const spotifyRef = useRef<SpotifyPlayer>();
+  if (!spotifyRef.current) spotifyRef.current = new SpotifyPlayer();
+  const spotifyConnectingRef = useRef<Promise<void> | null>(null);
+  const lastSpotifyTrackId = useRef<string | null>(null);
   const currentId = state.queue[state.currentIndex];
   const track = currentId ? getTrack(currentId) : undefined;
+  const isSpotify = track?.source === 'Spotify';
 
   useEffect(() => {
     const engine = engineRef.current!;
     engine.onEnded = () => dispatch({ type: 'NEXT' });
     engine.onTick = sec => dispatch({ type: 'TICK', positionSec: sec });
+    spotifyRef.current!.onStateChange = s => dispatch({ type: 'TICK', positionSec: Math.round(s.position / 1000) });
   }, [dispatch]);
 
   useEffect(() => {
@@ -83,28 +93,66 @@ function AudioBridge() {
     // there's nothing to load — pause any audio left playing from a
     // previous local track so it doesn't keep playing under the new UI.
     const engine = engineRef.current!;
+    if (isSpotify) {
+      engine.pause();
+      return;
+    }
+    lastSpotifyTrackId.current = null;
     if (track?.fileUrl) engine.load(track.fileUrl);
     else engine.pause();
-  }, [track?.fileUrl]);
+  }, [track?.fileUrl, isSpotify]);
 
   useEffect(() => {
-    if (!track?.fileUrl) return;
+    if (!track?.fileUrl || isSpotify) return;
     if (state.playing) engineRef.current!.play();
     else engineRef.current!.pause();
-  }, [state.playing, track?.fileUrl]);
+  }, [state.playing, track?.fileUrl, isSpotify]);
+
+  // Real Spotify playback: connects the Web Playback SDK on first use, then
+  // drives Spotify Connect (play/resume/pause) for this app's device.
+  useEffect(() => {
+    if (!isSpotify || !track) return;
+    const sp = spotifyRef.current!;
+    let cancelled = false;
+    (async () => {
+      if (!spotifyConnectingRef.current) spotifyConnectingRef.current = sp.connect(getValidAccessToken);
+      await spotifyConnectingRef.current;
+      if (cancelled) return;
+      if (!sp.getDeviceId()) await new Promise<void>(resolve => { sp.onReady = resolve; });
+      if (cancelled) return;
+      const token = await getValidAccessToken();
+      if (!token || cancelled) return;
+      if (!state.playing) {
+        sp.pause();
+        return;
+      }
+      if (lastSpotifyTrackId.current !== track.id) {
+        lastSpotifyTrackId.current = track.id;
+        await sp.playUri(track.id, token);
+      } else {
+        sp.resume();
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [track?.id, isSpotify, state.playing]);
 
   useEffect(() => {
     engineRef.current!.setVolume(state.volume);
+    spotifyRef.current!.setVolume(state.volume);
   }, [state.volume]);
 
-  // Mocked/streaming tracks (no fileUrl) never fire the real audio engine's
-  // timeupdate event, so the scrubber would otherwise sit frozen at 0:00.
-  // Approximate real playback with a local 1s counter (PRD §6.2: "visually
+  // Mocked tracks (no fileUrl, not Spotify) never fire a real timeupdate
+  // event, so the scrubber would otherwise sit frozen at 0:00. Approximate
+  // real playback with a local 1s counter (PRD §6.2: "visually
   // indistinguishable to the user") — this owns its own elapsed count
   // rather than reading state.positionSec each tick, so it doesn't need to
-  // re-run on every TICK it dispatches.
+  // re-run on every TICK it dispatches. Real Spotify tracks get their TICKs
+  // from the SDK's onStateChange above instead.
   useEffect(() => {
-    if (!track || track.fileUrl || !state.playing) return;
+    if (!track || track.fileUrl || isSpotify || !state.playing) return;
     let elapsed = state.positionSec;
     const interval = setInterval(() => {
       elapsed = Math.min(elapsed + 1, track.durationSec);
@@ -112,7 +160,7 @@ function AudioBridge() {
     }, 1000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [track?.id, track?.fileUrl, state.playing]);
+  }, [track?.id, track?.fileUrl, isSpotify, state.playing]);
 
   return null;
 }
@@ -129,6 +177,7 @@ function Gated() {
     <BrowserRouter>
       <AudioBridge />
       <Routes>
+        <Route path="callback" element={<Callback />} />
         <Route element={<AppShell getTrack={getTrack} />}>
           <Route index element={<LibraryRoute />} />
           <Route path="search" element={<SearchRoute />} />
