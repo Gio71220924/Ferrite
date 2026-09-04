@@ -1,7 +1,6 @@
 import { generateCodeVerifier, generateCodeChallenge } from '../lib/pkce';
 
 const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
-const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 const SCOPES = 'https://www.googleapis.com/auth/youtube.readonly';
 
 const VERIFIER_KEY = 'ferrite:youtube:verifier';
@@ -67,18 +66,17 @@ export async function handleCallback(code: string, state: string | null): Promis
     throw new Error('YouTube login state mismatch — start login again');
   }
 
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: import.meta.env.VITE_YOUTUBE_REDIRECT_URI,
-    client_id: import.meta.env.VITE_YOUTUBE_CLIENT_ID,
-    code_verifier: verifier,
-  });
-
-  const res = await fetch(TOKEN_ENDPOINT, {
+  // Google requires client_secret for this client even with PKCE, so the
+  // exchange goes through our own serverless proxy (api/youtube-token.ts),
+  // which holds the secret server-side instead of shipping it to the browser.
+  const res = await fetch('/api/youtube-token', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      code,
+      redirect_uri: import.meta.env.VITE_YOUTUBE_REDIRECT_URI,
+      code_verifier: verifier,
+    }),
   });
   if (!res.ok) throw new Error(`YouTube token exchange failed: ${res.status}`);
   const data = await res.json();
@@ -93,15 +91,10 @@ export async function handleCallback(code: string, state: string | null): Promis
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<YouTubeToken> {
-  const body = new URLSearchParams({
-    grant_type: 'refresh_token',
-    refresh_token: refreshToken,
-    client_id: import.meta.env.VITE_YOUTUBE_CLIENT_ID,
-  });
-  const res = await fetch(TOKEN_ENDPOINT, {
+  const res = await fetch('/api/youtube-refresh', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ refresh_token: refreshToken }),
   });
   if (!res.ok) throw new Error(`YouTube token refresh failed: ${res.status}`);
   const data = await res.json();
