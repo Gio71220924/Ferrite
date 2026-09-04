@@ -1,11 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { handleCallback } from '../services/spotifyAuth';
-import { getProfile, getSavedTracks } from '../services/spotifyApi';
-import { setSpotifyLibrary } from '../services/spotifyLive';
+import { refreshSpotifyLibrary } from '../services/spotifyLive';
 import { useSources } from '../state/SourcesContext';
 
-export function Callback() {
+export function Callback({ onboarded }: { onboarded: boolean }) {
   const navigate = useNavigate();
   const { dispatch } = useSources();
   const [error, setError] = useState<string | null>(null);
@@ -34,10 +33,12 @@ export function Callback() {
     (async () => {
       try {
         await handleCallback(code, state);
-        const [profile, tracks] = await Promise.all([getProfile(), getSavedTracks()]);
-        setSpotifyLibrary(tracks, { displayName: profile.displayName, product: profile.product });
+        await refreshSpotifyLibrary();
         dispatch({ type: 'CONNECT_DONE', key: 'spotify' });
-        navigate('/sources', { replace: true });
+        // Mid-onboarding, '/' resumes the wizard at its persisted step
+        // (ConnectStep); post-onboarding, '/sources' is where this login
+        // was started from.
+        navigate(onboarded ? '/sources' : '/', { replace: true });
       } catch (e) {
         dispatch({ type: 'DISCONNECT', key: 'spotify' });
         setError(e instanceof Error ? e.message : 'Spotify login failed.');

@@ -1,13 +1,13 @@
 import { useSources } from '../../state/SourcesContext';
 import { appleMusicConnector } from '../../services/mockAppleMusic';
-import { spotifyConnector } from '../../services/mockSpotify';
+import { startLogin } from '../../services/spotifyAuth';
 import type { SourceConnector } from '../../services/sourceConnector';
 import type { StreamingKey } from '../../state/sourcesReducer';
 import styles from './OnboardingFlow.module.css';
 
-const SERVICES: { key: StreamingKey; name: string; connector: SourceConnector }[] = [
+const SERVICES: { key: StreamingKey; name: string; connector: SourceConnector | null }[] = [
   { key: 'apple', name: 'Apple Music', connector: appleMusicConnector },
-  { key: 'spotify', name: 'Spotify', connector: spotifyConnector },
+  { key: 'spotify', name: 'Spotify', connector: null },
 ];
 
 export function ConnectStep({ onNext }: { onNext: () => void }) {
@@ -19,6 +19,11 @@ export function ConnectStep({ onNext }: { onNext: () => void }) {
     dispatch({ type: 'CONNECT_DONE', key });
   };
 
+  const onConnectClick = (key: StreamingKey, connector: SourceConnector | null) => {
+    if (key === 'spotify') void startLogin();
+    else if (connector) void connect(key, connector);
+  };
+
   return (
     <div className={styles.step}>
       <div className={styles.heading}>Add your accounts</div>
@@ -27,7 +32,7 @@ export function ConnectStep({ onNext }: { onNext: () => void }) {
         {SERVICES.map(({ key, name, connector }) => (
           <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: 16, borderRadius: 'var(--r-lg)', background: 'var(--card)', border: '1px solid var(--card-line)' }}>
             <div style={{ flex: 1 }}>{name}</div>
-            <button onClick={() => connect(key, connector)} data-tap>
+            <button onClick={() => onConnectClick(key, connector)} data-tap>
               {state.syncing === key ? 'Connecting…' : state[key] ? 'Connected' : 'Connect'}
             </button>
           </div>

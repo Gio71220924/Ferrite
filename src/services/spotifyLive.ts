@@ -1,3 +1,4 @@
+import { getProfile, getSavedTracks } from './spotifyApi';
 import type { Track } from '../types/track';
 
 interface SpotifyLiveProfile {
@@ -24,4 +25,12 @@ export function getSpotifyProfile(): SpotifyLiveProfile | null {
 export function clearSpotifyLibrary() {
   cachedTracks = [];
   cachedProfile = null;
+}
+
+/** Fetches the profile + saved tracks and populates the cache. Shared by
+ * the OAuth callback and by the reload-time rehydrate, since both just
+ * need "fetch everything, cache it" once a valid token is available. */
+export async function refreshSpotifyLibrary(): Promise<void> {
+  const [profile, tracks] = await Promise.all([getProfile(), getSavedTracks()]);
+  setSpotifyLibrary(tracks, { displayName: profile.displayName, product: profile.product });
 }

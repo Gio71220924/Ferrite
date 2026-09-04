@@ -16,8 +16,8 @@ import { OnboardingFlow } from './screens/onboarding/OnboardingFlow';
 import { albums, albumTracks, appleMusicCatalog } from './data/mockLibrary';
 import { AudioEngine } from './audio/AudioEngine';
 import { SpotifyPlayer } from './audio/SpotifyPlayer';
-import { getValidAccessToken } from './services/spotifyAuth';
-import { getSpotifyTracks } from './services/spotifyLive';
+import { getValidAccessToken, getStoredToken, clearStoredToken } from './services/spotifyAuth';
+import { getSpotifyTracks, refreshSpotifyLibrary } from './services/spotifyLive';
 import type { Track } from './types/track';
 
 function useTrackLookup() {
@@ -174,24 +174,44 @@ function AudioBridge() {
 function Gated() {
   const [onboarded, setOnboarded] = useState(() => localStorage.getItem('ferrite:onboarded') === 'true');
   const getTrack = useTrackLookup();
+  const { dispatch: sourcesDispatch } = useSources();
 
-  if (!onboarded) {
-    return <OnboardingFlow onFinish={() => setOnboarded(true)} />;
-  }
+  // A page reload wipes the in-memory "connected" flag and track cache,
+  // but the Spotify token itself lives in localStorage — reconnect
+  // silently on boot instead of showing Spotify as unlinked.
+  useEffect(() => {
+    if (!getStoredToken()) return;
+    sourcesDispatch({ type: 'CONNECT_START', key: 'spotify' });
+    (async () => {
+      try {
+        await refreshSpotifyLibrary();
+        sourcesDispatch({ type: 'CONNECT_DONE', key: 'spotify' });
+      } catch {
+        clearStoredToken();
+        sourcesDispatch({ type: 'DISCONNECT', key: 'spotify' });
+      }
+    })();
+  }, [sourcesDispatch]);
 
   return (
     <BrowserRouter>
       <AudioBridge />
       <Routes>
-        <Route path="callback" element={<Callback />} />
-        <Route element={<AppShell getTrack={getTrack} />}>
-          <Route index element={<LibraryRoute />} />
-          <Route path="search" element={<SearchRoute />} />
-          <Route path="sources" element={<Sources />} />
-          <Route path="queue" element={<QueueRoute />} />
-          <Route path="now-playing" element={<NowPlayingRoute />} />
-          <Route path="album/:id" element={<AlbumRoute />} />
-        </Route>
+        {/* Always reachable, even mid-onboarding: connecting Spotify from
+            ConnectStep redirects the whole page away and back here. */}
+        <Route path="callback" element={<Callback onboarded={onboarded} />} />
+        {onboarded ? (
+          <Route element={<AppShell getTrack={getTrack} />}>
+            <Route index element={<LibraryRoute />} />
+            <Route path="search" element={<SearchRoute />} />
+            <Route path="sources" element={<Sources />} />
+            <Route path="queue" element={<QueueRoute />} />
+            <Route path="now-playing" element={<NowPlayingRoute />} />
+            <Route path="album/:id" element={<AlbumRoute />} />
+          </Route>
+        ) : (
+          <Route path="*" element={<OnboardingFlow onFinish={() => setOnboarded(true)} />} />
+        )}
       </Routes>
     </BrowserRouter>
   );
