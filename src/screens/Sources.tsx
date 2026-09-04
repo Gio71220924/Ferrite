@@ -1,17 +1,17 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useSources } from '../state/SourcesContext';
 import { useLibrary } from '../state/LibraryContext';
-import { youtubeConnector } from '../services/mockYouTube';
-import { startLogin, clearStoredToken } from '../services/spotifyAuth';
+import { startLogin as startSpotifyLogin, clearStoredToken as clearSpotifyToken } from '../services/spotifyAuth';
 import { getSpotifyTracks, getSpotifyProfile, clearSpotifyLibrary } from '../services/spotifyLive';
+import { startLogin as startYoutubeLogin, clearStoredToken as clearYoutubeToken } from '../services/youtubeAuth';
+import { getYoutubeTracks, getYoutubeProfile, clearYoutubeLibrary } from '../services/youtubeLive';
 import { trackFromFile } from '../lib/trackFromFile';
-import type { SourceConnector } from '../services/sourceConnector';
 import type { SourcesState, StreamingKey } from '../state/sourcesReducer';
 import styles from './Sources.module.css';
 
-const SERVICES: { key: StreamingKey; name: string; color: string; connector: SourceConnector | null }[] = [
-  { key: 'youtube', name: 'YouTube', color: 'var(--youtube)', connector: youtubeConnector },
-  { key: 'spotify', name: 'Spotify', color: 'var(--spotify)', connector: null },
+const SERVICES: { key: StreamingKey; name: string; color: string }[] = [
+  { key: 'youtube', name: 'YouTube', color: 'var(--youtube)' },
+  { key: 'spotify', name: 'Spotify', color: 'var(--spotify)' },
 ];
 
 const PREF_ROWS: { key: keyof SourcesState['prefs']; label: string; hint: string; needsStream: boolean }[] = [
@@ -23,22 +23,19 @@ const PREF_ROWS: { key: keyof SourcesState['prefs']; label: string; hint: string
 export function Sources() {
   const { state, dispatch } = useSources();
   const { state: library, dispatch: libDispatch } = useLibrary();
-  const [lastSynced, setLastSynced] = useState<Partial<Record<StreamingKey, string>>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const anyStreamLinked = state.youtube || state.spotify;
 
-  const connect = async (key: StreamingKey, connector: SourceConnector) => {
-    dispatch({ type: 'CONNECT_START', key });
-    await connector.connect();
-    dispatch({ type: 'CONNECT_DONE', key });
-    setLastSynced(s => ({ ...s, [key]: 'Just now' }));
-  };
-
-  const disconnectSpotify = () => {
-    dispatch({ type: 'DISCONNECT', key: 'spotify' });
-    clearStoredToken();
-    clearSpotifyLibrary();
+  const disconnect = (key: StreamingKey) => {
+    dispatch({ type: 'DISCONNECT', key });
+    if (key === 'spotify') {
+      clearSpotifyToken();
+      clearSpotifyLibrary();
+    } else {
+      clearYoutubeToken();
+      clearYoutubeLibrary();
+    }
   };
 
   const onManageFiles = (files: FileList) => {
@@ -48,25 +45,25 @@ export function Sources() {
   return (
     <div className={styles.page}>
       <h1 className={styles.title}>Sources</h1>
-      {SERVICES.map(({ key, name, color, connector }) => {
+      {SERVICES.map(({ key, name, color }) => {
         const on = state[key];
         const busy = state.syncing === key;
         const spotifyProfile = key === 'spotify' ? getSpotifyProfile() : null;
+        const youtubeProfile = key === 'youtube' ? getYoutubeProfile() : null;
         const statusText = busy
           ? 'Importing library…'
           : on
             ? key === 'youtube'
-              ? '812 songs · 24 playlists'
+              ? `${getYoutubeTracks().length.toLocaleString()} liked videos${youtubeProfile ? ` · ${youtubeProfile.channelTitle}` : ''}`
               : `${getSpotifyTracks().length.toLocaleString()} songs${spotifyProfile ? ` · ${spotifyProfile.displayName}` : ''}`
             : 'Not connected';
         const onClick = () => {
-          if (key === 'spotify') {
-            if (busy || on) disconnectSpotify();
-            else void startLogin();
+          if (busy || on) {
+            disconnect(key);
             return;
           }
-          if (busy || on) dispatch({ type: 'DISCONNECT', key });
-          else if (connector) void connect(key, connector);
+          if (key === 'spotify') void startSpotifyLogin();
+          else void startYoutubeLogin();
         };
         return (
           <div className={styles.card} key={key}>
@@ -85,7 +82,7 @@ export function Sources() {
             </div>
             <div className={styles.syncedRow}>
               <span className={styles.syncedLabel}>Last synced</span>
-              <span className={styles.syncedValue}>{on ? (lastSynced[key] ?? 'Just now') : '—'}</span>
+              <span className={styles.syncedValue}>{on ? 'Just now' : '—'}</span>
             </div>
           </div>
         );

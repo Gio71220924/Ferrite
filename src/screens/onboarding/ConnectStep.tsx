@@ -1,27 +1,20 @@
 import { useSources } from '../../state/SourcesContext';
-import { youtubeConnector } from '../../services/mockYouTube';
-import { startLogin } from '../../services/spotifyAuth';
-import type { SourceConnector } from '../../services/sourceConnector';
+import { startLogin as startYoutubeLogin } from '../../services/youtubeAuth';
+import { startLogin as startSpotifyLogin } from '../../services/spotifyAuth';
 import type { StreamingKey } from '../../state/sourcesReducer';
 import styles from './OnboardingFlow.module.css';
 
-const SERVICES: { key: StreamingKey; name: string; connector: SourceConnector | null }[] = [
-  { key: 'youtube', name: 'YouTube', connector: youtubeConnector },
-  { key: 'spotify', name: 'Spotify', connector: null },
+const SERVICES: { key: StreamingKey; name: string }[] = [
+  { key: 'youtube', name: 'YouTube' },
+  { key: 'spotify', name: 'Spotify' },
 ];
 
 export function ConnectStep({ onNext }: { onNext: () => void }) {
-  const { state, dispatch } = useSources();
+  const { state } = useSources();
 
-  const connect = async (key: StreamingKey, connector: SourceConnector) => {
-    dispatch({ type: 'CONNECT_START', key });
-    await connector.connect();
-    dispatch({ type: 'CONNECT_DONE', key });
-  };
-
-  const onConnectClick = (key: StreamingKey, connector: SourceConnector | null) => {
-    if (key === 'spotify') void startLogin();
-    else if (connector) void connect(key, connector);
+  const onConnectClick = (key: StreamingKey) => {
+    if (key === 'spotify') void startSpotifyLogin();
+    else void startYoutubeLogin();
   };
 
   return (
@@ -29,10 +22,10 @@ export function ConnectStep({ onNext }: { onNext: () => void }) {
       <div className={styles.heading}>Add your accounts</div>
       <div className={styles.sub}>Optional. You can do this later.</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 34 }}>
-        {SERVICES.map(({ key, name, connector }) => (
+        {SERVICES.map(({ key, name }) => (
           <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 13, padding: 16, borderRadius: 'var(--r-lg)', background: 'var(--card)', border: '1px solid var(--card-line)' }}>
             <div style={{ flex: 1 }}>{name}</div>
-            <button onClick={() => onConnectClick(key, connector)} data-tap>
+            <button onClick={() => onConnectClick(key)} data-tap>
               {state.syncing === key ? 'Connecting…' : state[key] ? 'Connected' : 'Connect'}
             </button>
           </div>

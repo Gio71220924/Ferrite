@@ -6,6 +6,7 @@ import { Library } from './Library';
 import { SourcesProvider, useSources } from '../state/SourcesContext';
 import { LibraryProvider, useLibrary } from '../state/LibraryContext';
 import { recordPlayed } from '../lib/recentlyPlayed';
+import { setYoutubeLibrary, clearYoutubeLibrary } from '../services/youtubeLive';
 import type { Track } from '../types/track';
 
 function renderLibrary() {
@@ -48,9 +49,16 @@ function setOnline(value: boolean) {
 }
 
 describe('Library', () => {
-  afterEach(() => setOnline(true));
+  afterEach(() => {
+    setOnline(true);
+    clearYoutubeLibrary();
+  });
 
   it('dims streaming tracks instead of hiding them when offline', async () => {
+    setYoutubeLibrary(
+      [{ id: 'yt-1', title: 'Slow Static', artist: 'The Harbour Lights', source: 'YouTube', durationSec: 221 }],
+      { channelTitle: 'Test Channel' },
+    );
     render(
       <MemoryRouter>
         <SourcesProvider>

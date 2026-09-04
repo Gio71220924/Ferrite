@@ -12,12 +12,15 @@ import { Search } from './screens/Search';
 import { Queue } from './screens/Queue';
 import { Album } from './screens/Album';
 import { Callback } from './screens/Callback';
+import { CallbackYouTube } from './screens/CallbackYouTube';
 import { OnboardingFlow } from './screens/onboarding/OnboardingFlow';
-import { albums, albumTracks, youtubeCatalog } from './data/mockLibrary';
+import { albums, albumTracks } from './data/mockLibrary';
 import { AudioEngine } from './audio/AudioEngine';
 import { SpotifyPlayer } from './audio/SpotifyPlayer';
 import { getValidAccessToken, getStoredToken, clearStoredToken } from './services/spotifyAuth';
 import { getSpotifyTracks, refreshSpotifyLibrary } from './services/spotifyLive';
+import { getStoredToken as getStoredYoutubeToken, clearStoredToken as clearStoredYoutubeToken } from './services/youtubeAuth';
+import { getYoutubeTracks, refreshYoutubeLibrary } from './services/youtubeLive';
 import { recordPlayed } from './lib/recentlyPlayed';
 import type { Track } from './types/track';
 
@@ -27,7 +30,7 @@ function useTrackLookup() {
   return useMemo(() => {
     const all: Track[] = [
       ...library.localTracks,
-      ...(sources.youtube ? youtubeCatalog : []),
+      ...(sources.youtube ? getYoutubeTracks() : []),
       ...(sources.spotify ? getSpotifyTracks() : []),
       ...Object.values(albumTracks),
     ];
@@ -198,13 +201,29 @@ function Gated() {
     })();
   }, [sourcesDispatch]);
 
+  // Same rehydrate as Spotify, for the YouTube OAuth token.
+  useEffect(() => {
+    if (!getStoredYoutubeToken()) return;
+    sourcesDispatch({ type: 'CONNECT_START', key: 'youtube' });
+    (async () => {
+      try {
+        await refreshYoutubeLibrary();
+        sourcesDispatch({ type: 'CONNECT_DONE', key: 'youtube' });
+      } catch {
+        clearStoredYoutubeToken();
+        sourcesDispatch({ type: 'DISCONNECT', key: 'youtube' });
+      }
+    })();
+  }, [sourcesDispatch]);
+
   return (
     <BrowserRouter>
       <AudioBridge />
       <Routes>
-        {/* Always reachable, even mid-onboarding: connecting Spotify from
-            ConnectStep redirects the whole page away and back here. */}
+        {/* Always reachable, even mid-onboarding: connecting Spotify/YouTube
+            from ConnectStep redirects the whole page away and back here. */}
         <Route path="callback" element={<Callback onboarded={onboarded} />} />
+        <Route path="callback/youtube" element={<CallbackYouTube onboarded={onboarded} />} />
         {onboarded ? (
           <Route element={<AppShell getTrack={getTrack} />}>
             <Route index element={<LibraryRoute />} />

@@ -3,7 +3,7 @@ import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { useOnlineStatus } from '../lib/useOnlineStatus';
-import { youtubeConnector } from '../services/mockYouTube';
+import { getYoutubeTracks } from '../services/youtubeLive';
 import { getSpotifyTracks } from '../services/spotifyLive';
 import { getRecentlyPlayedIds } from '../lib/recentlyPlayed';
 import { TrackRow } from '../components/TrackRow';
@@ -22,7 +22,7 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
 
   const pool: Track[] = useMemo(() => {
     const streaming = [
-      ...(sources.youtube ? youtubeConnector.catalog() : []),
+      ...(sources.youtube ? getYoutubeTracks() : []),
       ...(sources.spotify ? getSpotifyTracks() : []),
     ];
     return [...library.localTracks, ...streaming];

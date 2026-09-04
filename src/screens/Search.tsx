@@ -3,7 +3,7 @@ import { SearchIcon } from 'lucide-react';
 import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
-import { youtubeConnector } from '../services/mockYouTube';
+import { getYoutubeTracks } from '../services/youtubeLive';
 import { getSpotifyTracks } from '../services/spotifyLive';
 import { TrackRow } from '../components/TrackRow';
 import styles from './Search.module.css';
@@ -20,7 +20,7 @@ export function Search({ onPlay }: { onPlay: (track: Track, pool: Track[]) => vo
 
   const bySource: Record<Source, Track[]> = {
     Local: library.localTracks,
-    YouTube: sources.youtube ? youtubeConnector.catalog() : [],
+    YouTube: sources.youtube ? getYoutubeTracks() : [],
     Spotify: sources.spotify ? getSpotifyTracks() : [],
   };
 

@@ -1,21 +1,5 @@
 import type { Track, Album } from '../types/track';
 
-export const youtubeCatalog: Track[] = [
-  { id: 'am-1', title: 'Slow Static', artist: 'The Harbour Lights', source: 'YouTube', durationSec: 221 },
-  { id: 'am-2', title: 'Weather Systems', artist: 'Junia', source: 'YouTube', durationSec: 380 },
-  { id: 'am-3', title: 'Midsummer Static', artist: 'The Harbour Lights', source: 'YouTube', durationSec: 221 },
-  { id: 'am-4', title: 'Midnight Ferry', artist: 'Rosalind Ver', source: 'YouTube', durationSec: 278 },
-  { id: 'am-5', title: 'Midnight Ferry (Live)', artist: 'Rosalind Ver', source: 'YouTube', durationSec: 278 },
-];
-
-export const spotifyCatalog: Track[] = [
-  { id: 'sp-1', title: 'Pale Blue Hours', artist: 'Nima Okonkwo', source: 'Spotify', durationSec: 312, format: 'OGG 320' },
-  { id: 'sp-2', title: 'Nightbus', artist: 'Ferrograph', source: 'Spotify', durationSec: 206, format: 'OGG 320' },
-  { id: 'sp-3', title: 'Midway', artist: 'Ferrograph', source: 'Spotify', durationSec: 206, format: 'OGG 320' },
-  { id: 'sp-4', title: 'Midnight Ferry', artist: 'Rosalind Ver', source: 'Spotify', durationSec: 278, format: 'OGG 320' },
-  { id: 'sp-5', title: 'Midnight Ferry — Slowed', artist: 'lo-fi archive', source: 'Spotify', durationSec: 302, format: 'OGG 320' },
-];
-
 export const albums: Album[] = [
   { id: 'alb-harbour-tapes', title: 'Harbour Tapes', artist: 'Rosalind Ver', variant: 'local', year: 2019, sizeLabel: '512 MB',
     trackIds: ['ht-1', 'ht-2', 'ht-3', 'ht-4', 'ht-5', 'ht-6'] },
@@ -40,8 +24,8 @@ export const albumTracks: Record<string, Track> = {
   'ws-6': { id: 'ws-6', title: 'After Rain', artist: 'Junia', source: 'YouTube', durationSec: 423, albumId: 'alb-weather-systems' },
   'ns-1': { id: 'ns-1', title: 'Nightbus', artist: 'Ferrograph', source: 'Local', durationSec: 206, format: 'FLAC', albumId: 'alb-nightbus-sessions' },
   'ns-2': { id: 'ns-2', title: 'Depot', artist: 'Ferrograph', source: 'Local', durationSec: 252, format: 'FLAC', albumId: 'alb-nightbus-sessions' },
-  'ns-3': { id: 'ns-3', title: 'Last Service', artist: 'Ferrograph', source: 'Spotify', durationSec: 230, format: 'Lossless', albumId: 'alb-nightbus-sessions' },
+  'ns-3': { id: 'ns-3', title: 'Last Service', artist: 'Ferrograph', source: 'YouTube', durationSec: 230, albumId: 'alb-nightbus-sessions' },
   'ns-4': { id: 'ns-4', title: 'Terminus', artist: 'Ferrograph', source: 'Local', durationSec: 333, format: 'FLAC', albumId: 'alb-nightbus-sessions' },
-  'ns-5': { id: 'ns-5', title: 'Night Shift', artist: 'Ferrograph', source: 'Spotify', durationSec: 247, format: '320', albumId: 'alb-nightbus-sessions' },
-  'ns-6': { id: 'ns-6', title: 'First Light', artist: 'Ferrograph', source: 'Spotify', durationSec: 404, format: 'Lossless', albumId: 'alb-nightbus-sessions' },
+  'ns-5': { id: 'ns-5', title: 'Night Shift', artist: 'Ferrograph', source: 'YouTube', durationSec: 247, albumId: 'alb-nightbus-sessions' },
+  'ns-6': { id: 'ns-6', title: 'First Light', artist: 'Ferrograph', source: 'YouTube', durationSec: 404, albumId: 'alb-nightbus-sessions' },
 };
