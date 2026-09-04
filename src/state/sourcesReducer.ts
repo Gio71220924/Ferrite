@@ -28,6 +28,7 @@ export function sourcesReducer(state: SourcesState, action: SourcesAction): Sour
     case 'CONNECT_START':
       return { ...state, syncing: action.key, [action.key]: false };
     case 'CONNECT_DONE':
+      if (state.syncing !== action.key) return state;
       return { ...state, syncing: null, [action.key]: true };
     case 'DISCONNECT':
       return { ...state, [action.key]: false, syncing: state.syncing === action.key ? null : state.syncing };

@@ -11,6 +11,16 @@ describe('sourcesReducer', () => {
     expect(s.apple).toBe(true);
   });
 
+  it('a stale CONNECT_DONE after cancel does not silently reconnect the source', () => {
+    let s = sourcesReducer(initialSourcesState, { type: 'CONNECT_START', key: 'apple' });
+    s = sourcesReducer(s, { type: 'DISCONNECT', key: 'apple' });
+    expect(s.syncing).toBeNull();
+    expect(s.apple).toBe(false);
+    s = sourcesReducer(s, { type: 'CONNECT_DONE', key: 'apple' });
+    expect(s.apple).toBe(false);
+    expect(s.syncing).toBeNull();
+  });
+
   it('disconnect clears the linked flag', () => {
     const connected = { ...initialSourcesState, apple: true };
     const s = sourcesReducer(connected, { type: 'DISCONNECT', key: 'apple' });
