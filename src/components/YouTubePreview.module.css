@@ -12,7 +12,7 @@
 .error { font: 400 var(--t-foot)/1.4 var(--f-text); color: #ff4444; margin-top: 12px; }
 .download {
   display: block; margin: 16px 0 0; padding: 14px 0; text-align: center; border: none; cursor: pointer;
-  border-radius: var(--r-lg); background: var(--accent); font: 590 var(--t-body) var(--f-text); color: #fff; width: 100%;
+  border-radius: var(--r-lg); background: var(--tint); font: 590 var(--t-body) var(--f-text); color: #fff; width: 100%;
 }
 .download:disabled { opacity: 0.6; cursor: not-allowed; }
 .play {
