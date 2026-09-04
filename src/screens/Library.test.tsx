@@ -1,11 +1,12 @@
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, it, expect, afterEach } from 'vitest';
-import { MemoryRouter, Routes, Route } from 'react-router-dom';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import { Library } from './Library';
 import { SourcesProvider, useSources } from '../state/SourcesContext';
 import { LibraryProvider, useLibrary } from '../state/LibraryContext';
-import { albums } from '../data/mockLibrary';
+import { recordPlayed } from '../lib/recentlyPlayed';
+import type { Track } from '../types/track';
 
 function renderLibrary() {
   return render(
@@ -19,7 +20,7 @@ function renderLibrary() {
   );
 }
 
-function Seeded() {
+function Seeded({ onPlay = () => {} }: { onPlay?: (track: Track, pool: Track[]) => void }) {
   const { dispatch: libDispatch } = useLibrary();
   const { dispatch: sourcesDispatch } = useSources();
   return (
@@ -36,7 +37,7 @@ function Seeded() {
       >
         seed
       </button>
-      <Library onPlay={() => {}} />
+      <Library onPlay={onPlay} />
     </>
   );
 }
@@ -68,21 +69,27 @@ describe('Library', () => {
     expect(screen.getByText('Slow Static')).toBeInTheDocument();
   });
 
-  it('the recently-played rail links each album card to its album route', async () => {
+  it('shows a recently-played rail only for tracks actually played, and clicking one plays it again', async () => {
+    localStorage.clear();
+    recordPlayed('l1');
+    const onPlay = vi.fn();
     render(
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter>
         <SourcesProvider>
           <LibraryProvider>
-            <Routes>
-              <Route path="/" element={<Library onPlay={() => {}} />} />
-              <Route path="/album/:id" element={<div>Album screen</div>} />
-            </Routes>
+            <Seeded onPlay={onPlay} />
           </LibraryProvider>
         </SourcesProvider>
       </MemoryRouter>,
     );
-    await userEvent.click(screen.getByText(albums[0].title));
-    expect(screen.getByText('Album screen')).toBeInTheDocument();
+    expect(screen.queryByText('Recently played')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('seed'));
+
+    expect(screen.getByText('Recently played')).toBeInTheDocument();
+    const [railCard] = screen.getAllByText('Midnight Ferry');
+    await userEvent.click(railCard);
+    expect(onPlay).toHaveBeenCalledWith(expect.objectContaining({ id: 'l1' }), expect.any(Array));
   });
 
   it('shows the empty state when the Local filter has no tracks', async () => {

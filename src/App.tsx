@@ -18,6 +18,7 @@ import { AudioEngine } from './audio/AudioEngine';
 import { SpotifyPlayer } from './audio/SpotifyPlayer';
 import { getValidAccessToken, getStoredToken, clearStoredToken } from './services/spotifyAuth';
 import { getSpotifyTracks, refreshSpotifyLibrary } from './services/spotifyLive';
+import { recordPlayed } from './lib/recentlyPlayed';
 import type { Track } from './types/track';
 
 function useTrackLookup() {
@@ -87,6 +88,10 @@ function AudioBridge() {
     engine.onTick = sec => dispatch({ type: 'TICK', positionSec: sec });
     spotifyRef.current!.onStateChange = s => dispatch({ type: 'TICK', positionSec: Math.round(s.position / 1000) });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (track?.id) recordPlayed(track.id);
+  }, [track?.id]);
 
   useEffect(() => {
     // When switching to a track with no fileUrl (e.g. a streaming track),

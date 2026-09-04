@@ -15,7 +15,7 @@
 @media (min-width: 1024px) {
   .rail { flex-wrap: wrap; overflow: visible; }
 }
-.railCard { flex: none; width: 132px; text-decoration: none; }
-.railArt { width: 132px; height: 132px; border-radius: 14px; border: 1px solid var(--card-line); background: var(--art); }
+.railCard { flex: none; width: 132px; text-decoration: none; text-align: left; background: none; border: none; padding: 0; cursor: pointer; }
+.railArt { width: 132px; height: 132px; border-radius: 14px; border: 1px solid var(--card-line); background: var(--art); object-fit: cover; display: block; }
 .railTitle { font: 590 var(--t-sub)/1.2 var(--f-text); color: var(--l1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 11px 0 3px; }
 .railSub { font: 400 var(--t-foot)/1.2 var(--f-text); color: var(--l2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

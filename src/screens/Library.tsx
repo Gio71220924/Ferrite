@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import type { Source, Track } from '../types/track';
 import { useLibrary } from '../state/LibraryContext';
 import { useSources } from '../state/SourcesContext';
 import { useOnlineStatus } from '../lib/useOnlineStatus';
 import { appleMusicConnector } from '../services/mockAppleMusic';
 import { getSpotifyTracks } from '../services/spotifyLive';
-import { albums } from '../data/mockLibrary';
+import { getRecentlyPlayedIds } from '../lib/recentlyPlayed';
 import { TrackRow } from '../components/TrackRow';
 import { FerriteMark } from '../components/FerriteMark';
 import { WifiOff } from 'lucide-react';
@@ -28,6 +27,13 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
     ];
     return [...library.localTracks, ...streaming];
   }, [library.localTracks, sources.apple, sources.spotify]);
+
+  const recentTracks = useMemo(() => {
+    const byId = new Map(pool.map(t => [t.id, t]));
+    return getRecentlyPlayedIds()
+      .map(id => byId.get(id))
+      .filter((t): t is Track => !!t);
+  }, [pool]);
 
   const effectiveFilter: Source | 'All' = !online && library.filter !== 'Local' ? 'Local' : library.filter;
 
@@ -59,16 +65,20 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
         </div>
       )}
 
-      <div className={styles.railLabel}>Recently played</div>
-      <div className={styles.rail}>
-        {albums.map(a => (
-          <Link key={a.id} className={styles.railCard} to={`/album/${a.id}`}>
-            <div className={styles.railArt} />
-            <div className={styles.railTitle}>{a.title}</div>
-            <div className={styles.railSub}>{a.artist}</div>
-          </Link>
-        ))}
-      </div>
+      {recentTracks.length > 0 && (
+        <>
+          <div className={styles.railLabel}>Recently played</div>
+          <div className={styles.rail}>
+            {recentTracks.map(t => (
+              <button key={t.id} className={styles.railCard} onClick={() => onPlay(t, pool)} data-tap>
+                {t.artworkUrl ? <img className={styles.railArt} src={t.artworkUrl} alt="" /> : <div className={styles.railArt} />}
+                <div className={styles.railTitle}>{t.title}</div>
+                <div className={styles.railSub}>{t.artist}</div>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       <div className={styles.segment}>
         {ALL_SOURCES.map(s => {
