@@ -31,7 +31,7 @@ export function CallbackYouTube({ onboarded }: { onboarded: boolean }) {
         await handleCallback(code, state);
         await refreshYoutubeLibrary();
         dispatch({ type: 'CONNECT_DONE', key: 'youtube' });
-        navigate(onboarded ? '/sources' : '/', { replace: true });
+        navigate(onboarded ? '/settings' : '/', { replace: true });
       } catch (e) {
         dispatch({ type: 'DISCONNECT', key: 'youtube' });
         setError(e instanceof Error ? e.message : 'YouTube login failed.');

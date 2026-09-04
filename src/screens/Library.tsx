@@ -108,7 +108,7 @@ export function Library({ onPlay }: { onPlay: (track: Track, pool: Track[]) => v
             {effectiveFilter === 'All' ? 'Nothing to play yet' : `No ${effectiveFilter} tracks`}
           </div>
           <div className={styles.emptyBody}>
-            Connect a service in Sources, or add files from your device.
+            Connect a service in Settings, or add files from your device.
           </div>
         </div>
       )}

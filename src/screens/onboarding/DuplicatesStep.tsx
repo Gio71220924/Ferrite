@@ -16,7 +16,7 @@ export function DuplicatesStep({ onFinish }: { onFinish: () => void }) {
   return (
     <div className={styles.step}>
       <div className={styles.heading}>When a song is in two places</div>
-      <div className={styles.sub}>Change this any time in Sources.</div>
+      <div className={styles.sub}>Change this any time in Settings.</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 34 }}>
         <button
           onClick={() => setRule('Local')}

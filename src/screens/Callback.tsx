@@ -36,9 +36,9 @@ export function Callback({ onboarded }: { onboarded: boolean }) {
         await refreshSpotifyLibrary();
         dispatch({ type: 'CONNECT_DONE', key: 'spotify' });
         // Mid-onboarding, '/' resumes the wizard at its persisted step
-        // (ConnectStep); post-onboarding, '/sources' is where this login
+        // (ConnectStep); post-onboarding, '/settings' is where this login
         // was started from.
-        navigate(onboarded ? '/sources' : '/', { replace: true });
+        navigate(onboarded ? '/settings' : '/', { replace: true });
       } catch (e) {
         dispatch({ type: 'DISCONNECT', key: 'spotify' });
         setError(e instanceof Error ? e.message : 'Spotify login failed.');

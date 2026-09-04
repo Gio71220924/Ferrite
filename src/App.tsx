@@ -7,7 +7,7 @@ import { DuplicateSheetProvider } from './state/DuplicateSheetContext';
 import { AppShell, useShellContext } from './app/AppShell';
 import { Library } from './screens/Library';
 import { NowPlaying } from './screens/NowPlaying';
-import { Sources } from './screens/Sources';
+import { Settings } from './screens/Settings';
 import { Search } from './screens/Search';
 import { Queue } from './screens/Queue';
 import { Album } from './screens/Album';
@@ -232,7 +232,7 @@ function Gated() {
           <Route element={<AppShell getTrack={getTrack} />}>
             <Route index element={<LibraryRoute />} />
             <Route path="search" element={<SearchRoute />} />
-            <Route path="sources" element={<Sources />} />
+            <Route path="settings" element={<Settings />} />
             <Route path="queue" element={<QueueRoute />} />
             <Route path="now-playing" element={<NowPlayingRoute />} />
             <Route path="album/:id" element={<AlbumRoute />} />

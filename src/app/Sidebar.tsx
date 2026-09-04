@@ -1,13 +1,13 @@
 import { NavLink } from 'react-router-dom';
-import { Library, Search, Plug, ListMusic } from 'lucide-react';
+import { Library, Search, ListMusic, Settings } from 'lucide-react';
 import { FerriteMark } from '../components/FerriteMark';
 import styles from './Sidebar.module.css';
 
 const LINKS = [
   { to: '/', label: 'Library', Icon: Library },
   { to: '/search', label: 'Search', Icon: Search },
-  { to: '/sources', label: 'Sources', Icon: Plug },
   { to: '/queue', label: 'Queue', Icon: ListMusic },
+  { to: '/settings', label: 'Settings', Icon: Settings },
 ];
 
 export function Sidebar() {

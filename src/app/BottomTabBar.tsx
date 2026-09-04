@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { Library, Search, Plug } from 'lucide-react';
+import { Library, Search, Settings } from 'lucide-react';
 import styles from './BottomTabBar.module.css';
 
 const TABS = [
   { to: '/', label: 'Library', Icon: Library },
   { to: '/search', label: 'Search', Icon: Search },
-  { to: '/sources', label: 'Sources', Icon: Plug },
+  { to: '/settings', label: 'Settings', Icon: Settings },
 ];
 
 export function BottomTabBar() {
