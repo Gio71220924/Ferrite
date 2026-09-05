@@ -6,7 +6,19 @@ const PORT = process.env.PORT || 3001;
 const app = express();
 
 app.use(cors({
-  origin: ['http://127.0.0.1:5199', 'http://localhost:5199'],
+  origin: (origin, callback) => {
+    const allowed = [
+      'http://127.0.0.1:5199',
+      'http://localhost:5199',
+      'http://localhost:3001',
+      'https://ferrite-app.vercel.app',
+    ];
+    if (!origin || allowed.includes(origin) || origin.endsWith('.trycloudflare.com') || origin.endsWith('.onrender.com')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'DELETE'],
   allowedHeaders: ['Content-Type'],
 }));
